@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Plataforma de estudio (nivel práctica) para el examen de Diseño de Vestuario, Utilería y Escenografía.">
+<title>Tras Bambalinas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&display=swap">
+<style>
+/* Layout: escenario (hero con telón y marquesina) + tablero de estudio por unidades; navegación fija abajo en móvil, pestañas arriba en escritorio */
+:root{
+  --bg:#F5F3F8; --surface:#FFFFFF; --surface-2:#EDE9F3; --ink:#1D1A26; --muted:#4A4558; --line:#CFC8DB;
+  --accent:#4A27B0; --accent-ink:#FFFFFF; --accent-soft:#E7E1FA;
+  --vest:#A8124A; --vest-soft:#FBE3EC; --esc:#0A6680; --esc-soft:#DCF0F6; --uti:#8A5200; --uti-soft:#FAEAD1;
+  --ok:#1B6E34; --ok-soft:#DDF3E3; --bad:#A82A20; --bad-soft:#FBE1DE;
+  --stage:#2A1440; --stage-2:#43205F; --stage-ink:#F7F1FB; --stage-muted:#DCCDE8; --curtain:#8C1238; --curtain-2:#5E0B25; --bulb:#F4C152;
+  --focus:#1F5BFF; --bw:1.5px;
+  --font-display:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;
+  --font-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r:16px; --r-sm:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16141C; --surface:#211E29; --surface-2:#2B2735; --ink:#E8E4EF; --muted:#BDB6CB; --line:#4A4359;
+    --accent:#B4A3FF; --accent-ink:#17131F; --accent-soft:#30284A;
+    --vest:#FF8AB3; --vest-soft:#3B1A28; --esc:#72CFE8; --esc-soft:#13303A; --uti:#F2BE5E; --uti-soft:#3A2C12;
+    --ok:#7BD69A; --ok-soft:#173222; --bad:#FF958C; --bad-soft:#3D1B19;
+    --stage:#1E1029; --stage-2:#33194A; --stage-ink:#F1EAF6; --stage-muted:#D2C3DF; --curtain:#7A1030; --curtain-2:#4A0A1E; --bulb:#E6B64C;
+    --focus:#9CC0FF; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16141C; --surface:#211E29; --surface-2:#2B2735; --ink:#E8E4EF; --muted:#BDB6CB; --line:#4A4359;
+  --accent:#B4A3FF; --accent-ink:#17131F; --accent-soft:#30284A;
+  --vest:#FF8AB3; --vest-soft:#3B1A28; --esc:#72CFE8; --esc-soft:#13303A; --uti:#F2BE5E; --uti-soft:#3A2C12;
+  --ok:#7BD69A; --ok-soft:#173222; --bad:#FF958C; --bad-soft:#3D1B19;
+  --stage:#1E1029; --stage-2:#33194A; --stage-ink:#F1EAF6; --stage-muted:#D2C3DF; --curtain:#7A1030; --curtain-2:#4A0A1E; --bulb:#E6B64C;
+  --focus:#9CC0FF; color-scheme:dark;
+}
+:root[data-contrast="alto"]{ --muted:var(--ink); --line:var(--ink); --bw:2.5px; }
+:root{ font-size:112.5%; }
+html,body{ background:var(--bg); color:var(--ink); }
+body{ font-family:var(--font-body); font-size:1rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+:root[data-spacing="amplio"] body{ letter-spacing:.035em; word-spacing:.12em; line-height:1.85; }
+*,*::before,*::after{ box-sizing:border-box; }
+[hidden]{ display:none!important; }
+h1,h2,h3{ font-family:var(--font-display); line-height:1.15; text-wrap:balance; margin:0; letter-spacing:-.01em; }
+p{ margin:0; }
+button,input,textarea{ font:inherit; color:inherit; }
+a{ color:var(--accent); }
+:focus-visible{ outline:3px solid var(--focus); outline-offset:3px; border-radius:6px; }
+.sr-only{ position:absolute!important; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.wrap{ max-width:1000px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
+
+/* ---------- barra superior ---------- */
+body::before{ content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--surface); }
+.topbar{ position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--surface); border-bottom:var(--bw) solid var(--line); }
+.topbar .wrap{ display:flex; align-items:center; gap:12px; padding-block:10px; }
+.brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); min-width:0; }
+.brand svg{ color:var(--vest); flex:none; }
+[tabindex="-1"]:focus{ outline:none; }
+.brand b{ font-family:var(--font-display); font-weight:800; font-size:1.15rem; white-space:nowrap; }
+.lvl{ display:inline-block; vertical-align:middle; margin-left:6px; font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:999px; background:var(--uti-soft); color:var(--uti); border:var(--bw) solid var(--uti); white-space:nowrap; }
+.hero .lvl{ margin:0 0 0 0; background:var(--bulb); color:#2A1440; border-color:var(--bulb); font-size:.78rem; }
+.brand small{ display:block; font-size:.72rem; color:var(--muted); font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.top-actions{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+.save{ display:flex; align-items:center; gap:6px; font-size:.8rem; color:var(--muted); }
+.save.is-bad{ color:var(--bad); font-weight:700; }
+.iconbtn{ min-width:48px; min-height:48px; padding:0 12px; display:inline-flex; align-items:center; justify-content:center; gap:6px; border:var(--bw) solid var(--line); background:var(--surface); border-radius:12px; cursor:pointer; font-weight:700; }
+.iconbtn:hover{ background:var(--surface-2); }
+.iconbtn[aria-expanded="true"]{ background:var(--accent-soft); border-color:var(--accent); }
+
+/* ---------- navegación ---------- */
+.tabs{ background:var(--bg); }
+.tabs ul{ list-style:none; margin:0; padding:12px 0 0; display:flex; gap:8px; }
+.tabs a{ display:flex; align-items:center; gap:8px; min-height:48px; padding:0 16px; border-radius:999px; text-decoration:none; color:var(--muted); font-weight:700; border:var(--bw) solid transparent; }
+.tabs a:hover{ color:var(--ink); background:var(--surface-2); }
+.tabs a[aria-current="page"]{ background:var(--ink); color:var(--bg); }
+@media (max-width:720px){
+  .tabs{ position:fixed; left:0; right:0; bottom:0; z-index:25; background:var(--surface); border-top:var(--bw) solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom,0px); padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px); }
+  .tabs .wrap{ padding:0; }
+  .tabs ul{ padding:6px 4px; gap:2px; justify-content:space-around; }
+  .tabs li{ flex:1; }
+  .tabs a{ flex-direction:column; gap:2px; padding:6px 2px; border-radius:12px; font-size:.72rem; min-height:56px; justify-content:center; }
+  .tabs a[aria-current="page"]{ background:var(--accent-soft); color:var(--ink); }
+  main#view{ padding-bottom:calc(96px + env(safe-area-inset-bottom,0px)); }
+  .save span{ display:none; }
+  .brand small{ display:none; }
+}
+main{ padding-block:20px 48px; outline:none; }
+
+/* ---------- elementos comunes ---------- */
+.stack{ display:flex; flex-direction:column; gap:20px; }
+.row{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.eyebrow{ font-size:.78rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); }
+.lead{ color:var(--muted); max-width:62ch; }
+.panel{ background:var(--surface); border:var(--bw) solid var(--line); border-radius:var(--r); padding:20px; }
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:10px 20px; border-radius:12px; border:var(--bw) solid var(--line); background:var(--surface); color:var(--ink); font-weight:700; cursor:pointer; text-decoration:none; text-align:center; }
+.btn:hover{ background:var(--surface-2); }
+.btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+.btn.primary:hover{ filter:brightness(1.08); }
+.btn.ok{ background:var(--ok); border-color:var(--ok); color:var(--surface); }
+.btn.ghost{ background:transparent; border-color:transparent; color:var(--muted); }
+.btn.ghost:hover{ color:var(--ink); background:var(--surface-2); }
+.btn[disabled]{ opacity:.55; cursor:not-allowed; }
+.btn.big{ min-height:56px; font-size:1.05rem; padding:12px 24px; }
+.chip{ display:inline-flex; align-items:center; gap:6px; font-size:.82rem; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--surface-2); color:var(--ink); }
+.chip.v{ background:var(--vest-soft); color:var(--vest); } .chip.e{ background:var(--esc-soft); color:var(--esc); } .chip.u{ background:var(--uti-soft); color:var(--uti); }
+.bar{ height:10px; border-radius:999px; background:var(--surface-2); overflow:hidden; border:var(--bw) solid var(--line); }
+.bar > i{ display:block; height:100%; background:var(--accent); border-radius:999px; transition:width .4s ease; }
+.bar.v > i{ background:var(--vest); } .bar.e > i{ background:var(--esc); } .bar.u > i{ background:var(--uti); }
+.num{ font-variant-numeric:tabular-nums; }
+.back{ align-self:flex-start; }
+h1.view-title{ font-size:clamp(1.6rem, 4vw, 2.2rem); font-weight:800; }
+h2.sec{ font-size:1.35rem; font-weight:800; }
+
+/* ---------- hero / escenario ---------- */
+.hero{ position:relative; overflow:hidden; border-radius:22px; background:radial-gradient(120% 90% at 50% 0%, var(--stage-2), var(--stage) 70%); color:var(--stage-ink); padding:40px 56px 32px; }
+.hero::before,.hero::after{ content:""; position:absolute; top:0; bottom:0; width:36px; background:repeating-linear-gradient(90deg, var(--curtain) 0 9px, var(--curtain-2) 9px 12px, var(--curtain) 12px 18px); }
+.hero::before{ left:0; border-bottom-right-radius:28px; }
+.hero::after{ right:0; border-bottom-left-radius:28px; }
+.bulbs{ position:absolute; top:12px; left:48px; right:48px; height:10px; background:radial-gradient(circle, var(--bulb) 0 3.5px, transparent 4px) 0 0/24px 10px repeat-x; animation:glow 2.6s ease-in-out infinite alternate; }
+@keyframes glow{ from{ opacity:.65 } to{ opacity:1 } }
+.hero .eyebrow{ color:var(--stage-muted); }
+.hero h1{ font-size:clamp(1.7rem, 4.6vw, 2.6rem); font-weight:800; margin-top:8px; max-width:20ch; }
+.hero p.lead{ color:var(--stage-muted); margin-top:10px; }
+.hero-stats{ display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+.hstat{ background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.22); border-radius:14px; padding:10px 14px; min-width:150px; flex:1 1 150px; }
+.hstat .k{ font-size:.75rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--stage-muted); }
+.hstat .v{ font-family:var(--font-display); font-weight:800; font-size:1.35rem; display:flex; align-items:center; gap:6px; }
+.hstat .bar{ background:rgba(255,255,255,.18); border-color:transparent; margin-top:6px; }
+.hstat .bar > i{ background:var(--bulb); }
+.hero-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+.hero .btn{ border-color:rgba(255,255,255,.35); background:transparent; color:var(--stage-ink); }
+.hero .btn:hover{ background:rgba(255,255,255,.1); }
+.hero .btn.primary{ background:var(--bulb); border-color:var(--bulb); color:#2A1440; }
+@media (max-width:600px){ .hero{ padding:36px 30px 24px; } .hero::before,.hero::after{ width:16px; } .bulbs{ left:24px; right:24px; } }
+
+/* ---------- unidades ---------- */
+.units{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:16px; }
+@media (max-width:900px){ .units{ grid-template-columns:1fr; } }
+.unit{ background:var(--surface); border:var(--bw) solid var(--line); border-radius:var(--r); overflow:hidden; display:flex; flex-direction:column; }
+.unit-head{ padding:16px 18px; display:flex; gap:12px; align-items:center; }
+.unit.v .unit-head{ background:var(--vest-soft); color:var(--vest); }
+.unit.e .unit-head{ background:var(--esc-soft); color:var(--esc); }
+.unit.u .unit-head{ background:var(--uti-soft); color:var(--uti); }
+.unit-head h3{ font-size:1.15rem; color:var(--ink); }
+.unit-head .eyebrow{ color:inherit; }
+.unit-head .pct{ margin-left:auto; font-family:var(--font-display); font-weight:800; font-size:1.3rem; }
+.topics{ list-style:none; margin:0; padding:6px 18px 16px; display:flex; flex-direction:column; }
+.topic-row{ padding:12px 0; border-bottom:var(--bw) solid var(--line); display:flex; flex-direction:column; gap:8px; }
+.topic-row:last-child{ border-bottom:0; }
+.topic-row .tname{ font-weight:700; display:flex; justify-content:space-between; gap:8px; }
+.topic-row .tname span{ color:var(--muted); font-weight:400; font-size:.88rem; white-space:nowrap; }
+.topic-row .row .btn{ min-height:44px; padding:6px 14px; font-size:.92rem; flex:1; }
+
+/* ---------- tarjetas de selección ---------- */
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap:14px; }
+.pick{ text-align:left; display:flex; flex-direction:column; gap:8px; padding:18px; border-radius:var(--r); border:var(--bw) solid var(--line); background:var(--surface); cursor:pointer; min-height:120px; }
+.pick:hover{ border-color:var(--accent); }
+.pick h3{ font-size:1.12rem; }
+.pick p{ color:var(--muted); font-size:.95rem; }
+.pick .ico{ width:44px; height:44px; border-radius:12px; display:grid; place-items:center; background:var(--accent-soft); color:var(--accent); }
+.pick.v .ico{ background:var(--vest-soft); color:var(--vest); } .pick.e .ico{ background:var(--esc-soft); color:var(--esc); } .pick.u .ico{ background:var(--uti-soft); color:var(--uti); }
+.pick[disabled]{ opacity:.6; cursor:not-allowed; }
+.scope{ display:flex; flex-wrap:wrap; gap:8px; }
+.scope button{ min-height:44px; padding:6px 14px; border-radius:999px; border:var(--bw) solid var(--line); background:var(--surface); font-weight:700; cursor:pointer; }
+.scope button[aria-pressed="true"]{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+
+/* ---------- fichas ---------- */
+.essentials{ background:var(--surface); border:var(--bw) solid var(--line); border-radius:var(--r); padding:20px 22px; }
+.essentials ul{ margin:10px 0 0; padding-left:1.2em; display:flex; flex-direction:column; gap:8px; max-width:70ch; }
+.deck{ display:flex; flex-direction:column; gap:14px; }
+.deck-top{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; color:var(--muted); font-weight:700; }
+.fcard{ width:100%; min-height:260px; border-radius:22px; border:var(--bw) solid var(--line); background:var(--surface); padding:28px; display:flex; flex-direction:column; justify-content:center; gap:14px; text-align:left; cursor:pointer; position:relative; transition:transform .25s ease; }
+.fcard:hover{ border-color:var(--accent); }
+.fcard .fc-label{ font-size:.78rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); }
+.fcard .fc-front{ font-family:var(--font-display); font-weight:800; font-size:clamp(1.4rem, 3.6vw, 2rem); }
+.fcard.is-back{ background:var(--accent-soft); border-color:var(--accent); }
+.fcard.is-back .fc-front{ font-size:1rem; color:var(--muted); font-family:var(--font-body); font-weight:700; }
+.fcard .fc-back{ font-size:1.2rem; max-width:60ch; }
+.fcard .fc-hint{ position:absolute; right:18px; bottom:14px; font-size:.82rem; color:var(--muted); display:flex; gap:6px; align-items:center; }
+.fcard.pop{ animation:pop .28s ease; }
+@keyframes pop{ 0%{ transform:scale(.97) rotateX(8deg) } 100%{ transform:none } }
+.deck-actions{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; }
+.deck-actions.two{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+@media (max-width:520px){ .deck-actions{ grid-template-columns:1fr 1fr; } .deck-actions .flip{ grid-column:1 / -1; order:-1; } }
+.dots{ display:flex; flex-wrap:wrap; gap:6px; }
+.dots i{ width:12px; height:12px; border-radius:50%; background:var(--surface-2); border:var(--bw) solid var(--line); }
+.dots i.k{ background:var(--ok); border-color:var(--ok); }
+.dots i.cur{ outline:2px solid var(--ink); outline-offset:2px; }
+
+/* ---------- quiz ---------- */
+.qhead{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.qhead .bar{ flex:1 1 200px; }
+.qcard{ background:var(--surface); border:var(--bw) solid var(--line); border-radius:22px; padding:24px; display:flex; flex-direction:column; gap:18px; }
+.qcard h2{ font-size:clamp(1.3rem, 3.2vw, 1.7rem); font-weight:700; font-family:var(--font-body); line-height:1.35; }
+.opts{ display:flex; flex-direction:column; gap:10px; list-style:none; margin:0; padding:0; }
+.opt{ width:100%; display:flex; align-items:flex-start; gap:14px; text-align:left; padding:14px 16px; min-height:56px; border-radius:14px; border:var(--bw) solid var(--line); background:var(--surface); cursor:pointer; font-size:1.02rem; line-height:1.45; }
+.opt:hover:not([disabled]){ border-color:var(--accent); background:var(--accent-soft); }
+.opt .key{ flex:none; width:32px; height:32px; border-radius:9px; display:grid; place-items:center; font-weight:700; background:var(--surface-2); border:var(--bw) solid var(--line); }
+.opt .txt{ flex:1; min-width:0; padding-top:3px; }
+.opt .mark{ flex:none; display:flex; align-items:center; gap:4px; font-size:.82rem; font-weight:700; padding-top:5px; }
+.opt[disabled]{ cursor:default; }
+.opt.is-correct{ border-color:var(--ok); background:var(--ok-soft); }
+.opt.is-correct .key{ background:var(--ok); color:var(--surface); border-color:var(--ok); }
+.opt.is-correct .mark{ color:var(--ok); }
+.opt.is-wrong{ border-color:var(--bad); background:var(--bad-soft); }
+.opt.is-wrong .key{ background:var(--bad); color:var(--surface); border-color:var(--bad); }
+.opt.is-wrong .mark{ color:var(--bad); }
+.opt.is-dim{ opacity:.8; }
+.opt.is-picked{ border-color:var(--accent); background:var(--accent-soft); }
+.opt.is-picked .key{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.feedback{ border-radius:14px; padding:16px 18px; border:var(--bw) solid; display:flex; flex-direction:column; gap:6px; }
+.feedback.ok{ background:var(--ok-soft); border-color:var(--ok); }
+.feedback.bad{ background:var(--bad-soft); border-color:var(--bad); }
+.feedback b.t{ font-size:1.1rem; display:flex; gap:8px; align-items:center; }
+.feedback.ok b.t{ color:var(--ok); } .feedback.bad b.t{ color:var(--bad); }
+.src{ font-size:.85rem; color:var(--muted); }
+.qnav{ display:flex; flex-wrap:wrap; gap:6px; }
+.qnav button{ width:40px; height:40px; border-radius:10px; border:var(--bw) solid var(--line); background:var(--surface); font-weight:700; cursor:pointer; }
+.qnav button.done{ background:var(--accent-soft); border-color:var(--accent); }
+.qnav button[aria-current="true"]{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+
+/* ---------- resultados ---------- */
+.score{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+.ring{ --p:0; width:132px; height:132px; border-radius:50%; flex:none; display:grid; place-items:center; background:conic-gradient(var(--accent) calc(var(--p)*1%), var(--surface-2) 0); }
+.ring > div{ width:104px; height:104px; border-radius:50%; background:var(--surface); display:grid; place-items:center; text-align:center; font-family:var(--font-display); font-weight:800; font-size:1.6rem; line-height:1; }
+.ring small{ display:block; font-family:var(--font-body); font-size:.75rem; color:var(--muted); font-weight:700; margin-top:4px; }
+.missed{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.missed li{ border:var(--bw) solid var(--line); border-radius:14px; padding:14px 16px; background:var(--surface); display:flex; flex-direction:column; gap:4px; }
+.missed .yours{ color:var(--bad); } .missed .right{ color:var(--ok); font-weight:700; }
+
+/* ---------- relaciona ---------- */
+.match{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:16px; align-items:start; }
+@media (max-width:640px){ .match{ grid-template-columns:1fr; } }
+.mcol{ display:flex; flex-direction:column; gap:10px; }
+.mitem{ text-align:left; padding:12px 14px; min-height:52px; border-radius:12px; border:var(--bw) solid var(--line); background:var(--surface); cursor:pointer; display:flex; gap:10px; align-items:center; line-height:1.4; }
+.mitem.term{ font-weight:700; }
+.mitem:hover:not([disabled]){ border-color:var(--accent); }
+.mitem[aria-pressed="true"]{ border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 2px var(--accent) inset; }
+.mitem.done{ border-color:var(--ok); background:var(--ok-soft); cursor:default; }
+.mitem .pairno{ margin-left:auto; flex:none; font-size:.8rem; font-weight:700; color:var(--ok); display:flex; gap:4px; align-items:center; }
+.mitem.shake{ animation:shake .35s ease; border-color:var(--bad); }
+@keyframes shake{ 25%{ transform:translateX(-5px) } 75%{ transform:translateX(5px) } }
+
+/* ---------- ordena ---------- */
+.olist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.oitem{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:14px; border:var(--bw) solid var(--line); background:var(--surface); }
+.oitem .n{ flex:none; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:700; background:var(--surface-2); }
+.oitem .txt{ flex:1; min-width:0; font-weight:700; }
+.oitem .moves{ display:flex; gap:6px; flex:none; }
+.oitem .moves button{ width:44px; height:44px; border-radius:10px; border:var(--bw) solid var(--line); background:var(--surface); cursor:pointer; display:grid; place-items:center; }
+.oitem .moves button:hover:not([disabled]){ border-color:var(--accent); }
+.oitem .moves button[disabled]{ opacity:.35; cursor:not-allowed; }
+.oitem.good{ border-color:var(--ok); background:var(--ok-soft); } .oitem.good .n{ background:var(--ok); color:var(--surface); }
+.oitem.badpos{ border-color:var(--bad); background:var(--bad-soft); } .oitem.badpos .n{ background:var(--bad); color:var(--surface); }
+.oitem .st{ font-size:.82rem; font-weight:700; display:flex; gap:4px; align-items:center; }
+.oitem.good .st{ color:var(--ok); } .oitem.badpos .st{ color:var(--bad); }
+
+/* ---------- progreso ---------- */
+.tiles{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; }
+@media (max-width:760px){ .tiles{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+.tile{ background:var(--surface); border:var(--bw) solid var(--line); border-radius:var(--r); padding:16px; }
+.tile .k{ font-size:.78rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--muted); }
+.tile .v{ font-family:var(--font-display); font-weight:800; font-size:1.7rem; margin-top:4px; }
+.tile .s{ font-size:.88rem; color:var(--muted); }
+.mastery{ display:flex; flex-direction:column; gap:14px; }
+.mrow{ display:grid; grid-template-columns:minmax(0, 1.4fr) minmax(0, 2fr) 56px; gap:12px; align-items:center; }
+@media (max-width:560px){ .mrow{ grid-template-columns:minmax(0,1fr) 56px; } .mrow .bar{ grid-column:1 / -1; grid-row:2; } }
+.mrow .pct{ text-align:right; font-weight:700; }
+.badges{ display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap:12px; }
+.badge{ display:flex; gap:12px; align-items:flex-start; padding:14px; border-radius:14px; border:var(--bw) dashed var(--line); background:transparent; }
+.badge .medal{ flex:none; width:44px; height:44px; border-radius:50%; display:grid; place-items:center; background:var(--surface-2); color:var(--muted); }
+.badge.on{ border-style:solid; background:var(--surface); border-color:var(--bulb); }
+.badge.on .medal{ background:var(--bulb); color:#2A1440; }
+.badge b{ display:block; }
+.badge p{ font-size:.88rem; color:var(--muted); }
+.badge .state{ font-size:.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.cal{ display:flex; gap:6px; flex-wrap:wrap; }
+.cal div{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:.72rem; color:var(--muted); font-weight:700; }
+.cal i{ width:28px; height:28px; border-radius:8px; background:var(--surface-2); border:var(--bw) solid var(--line); display:grid; place-items:center; font-style:normal; font-size:.72rem; color:var(--ink); }
+.cal i.l1{ background:var(--accent-soft); border-color:var(--accent); }
+.cal i.l2{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+textarea{ width:100%; min-height:90px; padding:12px; border-radius:12px; border:var(--bw) solid var(--line); background:var(--bg); font-size:.9rem; word-break:break-all; }
+input[type="text"]{ min-height:48px; padding:10px 14px; border-radius:12px; border:var(--bw) solid var(--line); background:var(--surface); flex:1 1 220px; min-width:0; }
+.confirm{ border:var(--bw) solid var(--bad); background:var(--bad-soft); border-radius:14px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
+
+/* ---------- paneles flotantes ---------- */
+.popover{ position:absolute; right:max(16px, env(safe-area-inset-right,0px)); top:calc(100% + 8px); width:min(360px, calc(100vw - 32px)); background:var(--surface); border:var(--bw) solid var(--line); border-radius:var(--r); padding:18px; box-shadow:0 18px 40px rgba(20,10,40,.22); display:flex; flex-direction:column; gap:16px; z-index:40; }
+.popover h2{ font-size:1.1rem; }
+.setting{ display:flex; flex-direction:column; gap:8px; }
+.setting .lbl{ font-weight:700; }
+.seg{ display:flex; border:var(--bw) solid var(--line); border-radius:12px; overflow:hidden; }
+.seg button{ flex:1; min-height:44px; border:0; background:var(--surface); cursor:pointer; font-weight:700; border-right:var(--bw) solid var(--line); }
+.seg button:last-child{ border-right:0; }
+.seg button[aria-pressed="true"]{ background:var(--ink); color:var(--bg); }
+.switch{ display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; width:100%; border:0; background:transparent; cursor:pointer; text-align:left; padding:0; }
+.switch .tr{ flex:none; width:52px; height:30px; border-radius:999px; background:var(--surface-2); border:var(--bw) solid var(--line); position:relative; }
+.switch .tr::after{ content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:var(--muted); transition:left .2s; }
+.switch[aria-checked="true"] .tr{ background:var(--accent); border-color:var(--accent); }
+.switch[aria-checked="true"] .tr::after{ left:25px; background:var(--accent-ink); }
+.switch small{ display:block; color:var(--muted); font-size:.85rem; }
+.overlay{ position:fixed; inset:0; z-index:50; background:rgba(15,8,25,.55); display:grid; place-items:center; padding:16px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
+.modal{ background:var(--surface); border-radius:22px; border:var(--bw) solid var(--line); width:min(680px, 100%); max-height:min(86vh, 900px); overflow:auto; padding:24px; display:flex; flex-direction:column; gap:16px; }
+.modal h2{ font-size:1.5rem; }
+.modal h3{ font-size:1.1rem; margin-top:4px; }
+.modal ul{ margin:0; padding-left:1.2em; display:flex; flex-direction:column; gap:6px; }
+kbd{ font-family:inherit; font-weight:700; font-size:.85em; padding:2px 7px; border-radius:6px; border:var(--bw) solid var(--line); background:var(--surface-2); }
+.toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:calc(24px + env(safe-area-inset-bottom,0px)); z-index:60; background:var(--ink); color:var(--bg); padding:12px 18px; border-radius:14px; font-weight:700; display:flex; gap:10px; align-items:center; max-width:calc(100vw - 32px); box-shadow:0 12px 30px rgba(0,0,0,.25); }
+@media (max-width:720px){ .toast{ bottom:calc(90px + env(safe-area-inset-bottom,0px)); } }
+
+@media (prefers-reduced-motion: reduce){ *,*::before,*::after{ animation:none!important; transition:none!important; } }
+:root[data-motion="reducido"] *, :root[data-motion="reducido"] *::before, :root[data-motion="reducido"] *::after{ animation:none!important; transition:none!important; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap" style="position:relative">
+    <a class="brand" href="#inicio" aria-label="Tras Bambalinas, ir al inicio">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"/><path d="M3 3v18"/><path d="M21 3v18"/><path d="M3 3c1.5 6 4 9 7 9.5"/><path d="M21 3c-1.5 6-4 9-7 9.5"/><path d="M2 21h20"/></svg>
+      <span><b>Tras Bambalinas</b> <span class="lvl">Nivel práctica</span><small>Vestuario · Utilería · Escenografía</small></span>
+    </a>
+    <div class="top-actions">
+      <p class="save" id="save" role="status"></p>
+      <button class="iconbtn" id="btnRead" aria-expanded="false" aria-controls="readPanel" title="Ajustes de lectura">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19 9 5l5 14"/><path d="M5.8 14h6.4"/><path d="M15 19l3-8 3 8"/><path d="M16 16.5h4"/></svg>
+        <span class="sr-only">Ajustes de lectura</span>
+      </button>
+      <button class="iconbtn" id="btnHelp" title="Cómo funciona">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.4-2.7 4"/><path d="M12 17.6h.01"/></svg>
+        <span class="sr-only">Ayuda: cómo funciona</span>
+      </button>
+    </div>
+    <div class="popover" id="readPanel" role="dialog" aria-label="Ajustes de lectura" hidden></div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Secciones">
+  <div class="wrap"><ul id="tabs"></ul></div>
+</nav>
+<main id="view" tabindex="-1" class="wrap"></main>
+<div class="sr-only" id="live" aria-live="polite"></div>
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="overlay" id="overlay" hidden></div>
+
+<script>
+/* =====================================================================
+   CONTENIDO — basado en las presentaciones 01 a 11 del curso DVUE
+   En cada pregunta la primera opción es la correcta (se barajan al mostrar).
+   ===================================================================== */
+const UNITS = {
+  v:{ n:"Vestuario", u:"Unidad I", icon:"hanger" },
+  e:{ n:"Escenografía", u:"Unidad II", icon:"stage" },
+  u:{ n:"Utilería", u:"Unidad III", icon:"goblet" }
+};
+
+const TOPICS = [
+/* ------------------------------------------------------------ V1 */
+{ id:"v1", u:"v", n:"Introducción al vestuario", src:"Presentaciones 02 y 03",
+  key:[
+    "El diseñador de vestuario colabora con el director, el director de fotografía y el diseñador de producción para contar la historia, y con los actores para dar vida a los personajes.",
+    "El director establece qué comunicar, el guionista estructura la comunicación y el actor la lleva a cabo.",
+    "Todo empieza con el estudio del guion y una reunión con el director sobre la visión total de la película.",
+    "Sus 8 tareas: contar una historia, informarse, investigar, crear personajes, adecuar vestuario, pintar el marco, definir la historia y establecer características físicas.",
+    "El vestuario se compra, alquila o fabrica, y se envejece para mostrar desgaste.",
+    "Ropa interior, corsés, fajas y relleno cambian la silueta, la postura y la forma de moverse del actor."
+  ],
+  cards:[
+    ["Director · Guionista · Actor","El director establece qué comunicar, el guionista estructura la comunicación y el actor la lleva a cabo. El vestuario los influye y se ve influido por ellos."],
+    ["Las 8 tareas del diseñador de vestuario","Contar una historia · Informarse · Investigar · Crear personajes · Adecuar vestuario · Pintar el marco · Definir la historia · Establecer características físicas."],
+    ["Vestuario vs. moda","Se confunden a menudo, pero sus objetivos son muy diferentes: el vestuario sirve a la historia y a los personajes."],
+    ["¿Cómo se investiga?","Internet, archivos, museos, bibliotecas, periódicos, anuarios escolares, álbumes de familia, referencias visuales y visitas a locaciones."],
+    ["Envejecer (“descomponer”) un traje","Lavar muchas veces y usar cepillos de gamuza, tinte y aceite mineral, blanqueadores, aerógrafos, lija, hojas de afeitar y tierra de Fuller."],
+    ["Pintar el marco","El color del vestuario se integra a la gama del director, la luz y el set, y enfoca la atención en los personajes principales."],
+    ["Arco dramático","Los cambios emocionales y psicológicos que el personaje experimenta a lo largo de la película."],
+    ["Película de época","La que ocurre en el pasado, aunque sea hace apenas 10 años: todo su diseño está atado a ese momento."]
+  ],
+  qs:[
+    ["En el equipo creativo, ¿quién ESTABLECE qué se va a comunicar?",["El director","El guionista","El actor","El diseñador de vestuario"],"El director establece qué comunicar, el guionista lo estructura y el actor lo lleva a cabo."],
+    ["¿Qué hace el guionista en la comunicación de una historia?",["Estructura la comunicación","Establece qué comunicar","Lleva a cabo la comunicación","Decide el presupuesto de vestuario"],"El guionista estructura; el director establece; el actor ejecuta."],
+    ["Dentro de la comunicación, ¿qué hace el actor?",["Lleva a cabo la comunicación","Estructura la comunicación","Establece qué comunicar","Elige las telas"],"El actor es quien lleva a cabo la comunicación frente al público."],
+    ["¿Con qué comienza el proceso de diseño de vestuario?",["Con el estudio del guion","Con la compra de telas","Con la prueba de vestuario del actor","Con el envejecimiento de las prendas"],"Los guiones describen qué sucede, la época, el lugar y los personajes de cada escena."],
+    ["Después de leer el guion, ¿con quién se reúne el diseñador de vestuario?",["Con el director, para hablar de la visión total de la película","Con el sastre, para tomar medidas","Con el editor, para revisar escenas","Con el público, para conocer sus gustos"],"En esa reunión conoce opciones de casting, la caracterización, la gama de colores y el ambiente general."],
+    ["¿Por qué dos directores pueden crear películas distintas del mismo guion?",["Porque cada uno tiene su propia visión de la historia","Porque el guion cambia en cada copia","Porque el vestuario siempre se compra diferente","Porque el diseñador de vestuario decide la trama"],"La película es el medio del director: él elige qué revelar o encubrir de un personaje."],
+    ["¿Qué relación tienen el diseño de vestuario y el diseño de moda?",["Son áreas con objetivos muy diferentes","Son exactamente la misma disciplina","El vestuario siempre sigue las tendencias","La moda solo se usa en películas de época"],"A menudo se confunden, pero el vestuario está al servicio de la historia."],
+    ["¿Qué es la “tierra de Fuller” (fuller’s earth)?",["Una arcilla estéril que se sacude sobre ropa, botas y sombreros para que se vean gastados","Un tinte para teñir telas color tierra","Un tipo de tela rústica de algodón","Un relleno para cambiar la silueta del actor"],"Ayuda a que el vestuario se vea como si se hubiera gastado, por ejemplo, en un rancho."],
+    ["¿Qué se usa para agregar “manchas de sudor” a un vestuario?",["Tinte y aceite mineral","Papel de lija","Blanqueador","Hojas de afeitar"],"La lija y las hojas de afeitar desgastan; el blanqueador decolora; tinte y aceite mineral simulan sudor."],
+    ["Para envejecer o “descomponer” un traje nuevo, ¿qué se hace primero?",["Lavarlo o limpiarlo en seco muchas veces","Pintarlo con aerógrafo","Cortarlo con hojas de afeitar","Guardarlo un año en el inventario"],"Después vienen cepillos de gamuza, blanqueadores, aerógrafos, lija y hojas de afeitar."],
+    ["¿Por qué importa la ropa interior del vestuario aunque el público no la vea?",["Afecta la postura del actor y cómo camina, se sienta y respira","Porque aparece en los primeros planos","Porque es lo más caro del vestuario","Porque la exige el sindicato de actores"],"Corsés, fajas y ropa interior cambian la figura y la silueta del cuerpo."],
+    ["¿Qué significa que el vestuario “pinta el marco”?",["Que su color se integra a la gama de la película y enfoca la atención en los protagonistas","Que el vestuarista pinta el set a mano","Que el vestuario se hace con pintura textil","Que combina con el marco de la pantalla"],"El color es una de las herramientas más importantes del director para crear ambiente."],
+    ["¿Con qué dos recursos ayuda el vestuario a encontrar al personaje central en una muchedumbre?",["Color y silueta","Precio y marca","Música y diálogo","Maquillaje y peinado"],"El ejemplo de clase: Spider-Man es reconocible al instante por su traje."],
+    ["En The Amazing Spider-Man 2, ¿qué investigó la diseñadora Deborah L. Scott para el traje?",["Las gamas y proporciones de rojo y azul, volviendo a las referencias del cómic","Las telas de moda de ese año","El vestuario de otras películas de acción","Los colores favoritos del actor"],"El director Marc Webb quería volver a las referencias de la revista de historietas."],
+    ["¿Qué es el arco dramático de un personaje?",["Los cambios emocionales y psicológicos que vive a lo largo de la película","La forma del escenario donde actúa","El número de cambios de vestuario","La curva del presupuesto"],"Director, diseñador y actor lo analizan antes del rodaje para expresar la personalidad del personaje."],
+    ["Una película ambientada hace solo 10 años, ¿puede ser “película de época”?",["Sí, porque su vestuario y diseño de producción son específicos de ese momento","No, solo si ocurre antes de 1900","No, solo si hay trajes históricos","Solo si es de ciencia ficción"],"Película de época = ocurre en el pasado, aunque sea reciente."],
+    ["Un kilt escocés y un kimono son ejemplos de prendas que…",["Funcionan como emblema del origen de un país o cultura","Identifican una profesión","Indican que la película es de fantasía","Solo se usan como ropa interior"],"Los uniformes (policía, monja, cocinero) identifican profesiones; el kilt y el kimono, culturas."],
+    ["¿Cuál NO es una fuente de investigación mencionada para el vestuario?",["Copiar el vestuario de otra película","Museos y bibliotecas","Anuarios escolares y álbumes de familia","Visitas a locaciones como hospitales u oficinas"],"La investigación incluye internet, archivos, museos, bibliotecas, periódicos, anuarios, álbumes y excursiones a locaciones."],
+    ["El relleno en un vestuario puede…",["Dar a una actriz delgada una figura más desarrollada o un embarazo","Hacer que la ropa se vea gastada","Proteger la tela del sudor","Cambiar el color bajo la luz"],"Con relleno, corsés y fajas el vestuario establece características físicas del personaje."]
+  ],
+  match:[{ title:"¿Quién hace qué?", pairs:[
+    ["Director","Establece qué comunicar"],["Guionista","Estructura la comunicación"],["Actor","Lleva a cabo la comunicación"],["Tierra de Fuller","Arcilla para que la ropa se vea gastada"],["Arco dramático","Cambios emocionales y psicológicos del personaje"]]}],
+  order:[{ title:"Así arranca el diseño de vestuario", steps:["Estudiar el guion","Reunirse con el director","Investigar referencias","Crear el personaje con director y actor","Comprar, alquilar o fabricar el vestuario"]}]
+},
+/* ------------------------------------------------------------ V2 */
+{ id:"v2", u:"v", n:"Vestuario en el teatro", src:"Presentación 04",
+  key:[
+    "El diseñador de vestuario teatral crea una narrativa visual coherente y atractiva que apoya la historia y eleva la experiencia teatral.",
+    "Puntos clave del rol: equilibra lo histórico y lo conceptual, boceta desde el guion, se coordina con escenografía, iluminación, sonido y maquillaje, respeta presupuesto y plazos, y cuida comodidad, funcionalidad y seguridad.",
+    "Desafíos: presupuesto, moda, implicaciones culturales (respeto), factibilidad de uso y producción, y sustentabilidad.",
+    "Proceso: análisis del guion → concepto → diseño → telas → construcción y pruebas → ajustes finales → mantenimiento.",
+    "Puestos del departamento: sastres, sombrereros, vestuaristas, zapateros, tintorería, compras y gestión de vestuario."
+  ],
+  cards:[
+    ["Objetivo del diseñador teatral","Presentar una narrativa visual coherente y atractiva que apoye la historia y eleve la experiencia teatral."],
+    ["Vestuario histórico para público moderno","Reinterpretar estilos manteniendo la esencia, incorporar elementos modernos, equilibrar autenticidad y creatividad, cuidar la practicidad y colaborar con el director."],
+    ["Desafíos (respeto)","Presupuesto · Moda · Implicaciones culturales · Factibilidad de uso y producción · Sustentabilidad."],
+    ["Diseñador jefe de vestuario","Responsable del diseño general; supervisa desde la concepción hasta la ejecución y lidera al equipo según la visión del director."],
+    ["Supervisor de vestuario","Supervisa construcción, ajuste y reparación para que todo esté listo a tiempo para ensayos y funciones."],
+    ["Jefe de vestuario","Gestiona el departamento: organización, mantenimiento, logística, presupuesto, inventarios y el sistema de cambios rápidos."],
+    ["Tintorería","El primer y último paso: tiñe la tela y al final agrega degradados, manchas de sangre o desgaste."],
+    ["¿Quién contrata a un diseñador teatral?","Compañías de teatro, ópera y ballet, Broadway y West End, teatros regionales, cine y TV, parques temáticos, eventos, instituciones educativas, proyectos independientes y freelance."]
+  ],
+  qs:[
+    ["¿Cuál es el objetivo principal del diseñador de vestuario teatral?",["Presentar una narrativa visual coherente y atractiva que apoye la historia","Vender el vestuario al final de la temporada","Seguir las tendencias de moda actuales","Elegir a los actores del elenco"],"Su meta es apoyar la historia y elevar la experiencia teatral."],
+    ["¿Desde cuándo el vestuario ha sido fundamental en el teatro?",["Desde las tragedias griegas","Desde la invención del cine","Desde el Romanticismo","Desde el siglo XX"],"En la antigua Grecia y Roma los actores ya usaban prendas específicas para representar personajes."],
+    ["¿Cuál de estos NO es un punto clave del rol del diseñador de vestuario?",["Elegir al elenco de actores","Coordinarse con escenografía, iluminación, sonido y maquillaje","Respetar presupuestos y plazos","Garantizar comodidad, funcionalidad y seguridad"],"Los 5 puntos: equilibrar lo histórico y lo conceptual, bocetar desde el guion, coordinarse, respetar presupuesto y plazos, y cuidar comodidad y seguridad."],
+    ["¿Qué estrategia ayuda a que un vestuario histórico atraiga al público moderno?",["Reinterpretar estilos históricos manteniendo la esencia de la época","Copiar la ropa histórica sin cambios","Usar solo ropa contemporánea","Eliminar todos los detalles de época"],"También: incorporar elementos modernos, equilibrar autenticidad y creatividad, y colaborar con el director."],
+    ["¿Cuál de estos es uno de los desafíos del diseño de vestuario teatral?",["La sustentabilidad","Escribir el guion","Vender los boletos","Dirigir los ensayos"],"Desafíos: presupuesto, moda, implicaciones culturales, factibilidad de uso y producción, y sustentabilidad."],
+    ["¿Por qué debe considerarse la practicidad del vestuario en el teatro?",["Para que sea duradero y fácil de poner y quitar entre escenas","Para que cueste menos que la escenografía","Para que el público pueda tocarlo","Para poder venderlo después"],"Los cambios entre escenas son rápidos y el vestuario se usa en muchas funciones."],
+    ["¿Quién supervisa todo el proceso de vestuario y lidera al equipo según la visión del director?",["El diseñador jefe de vestuario","El técnico de vestuario","El asistente de diseño","El vestuarista"],"El diseñador jefe va desde la concepción hasta la ejecución final."],
+    ["¿Qué especialista se centra en costura, sastrería y manipulación de telas?",["El técnico de vestuario","El supervisor de vestuario","El diseñador de época","El jefe de compras"],"Los técnicos dan vida a los bocetos del diseñador con su destreza."],
+    ["¿Qué tipo de diseñador prioriza el movimiento y la flexibilidad?",["El diseñador de vestuario de danza","El diseñador de ópera","El diseñador de época","El diseñador contemporáneo"],"Sus diseños priorizan comodidad y una amplia gama de movimientos."],
+    ["Trajes elaborados y opulentos que reflejan grandeza y dramatismo son típicos del diseñador de…",["Ópera","Teatro infantil","Danza","Vestuario contemporáneo"],"En teatro infantil predominan colores llamativos y diseños divertidos."],
+    ["¿Qué hace el jefe de vestuario durante las funciones?",["Implementa y supervisa un sistema de cambios rápidos de vestuario","Escribe escenas nuevas","Diseña la iluminación","Vende el vestuario usado"],"También organiza el almacén, controla el presupuesto, inspecciona daños y lleva registros e inventarios."],
+    ["La palabra “sastre” se relaciona con el francés antiguo tailler, que significa…",["Cortador de tela","Costurero de lujo","Diseñador de moda","Medidor de cuerpos"],"Los sastres confeccionan el vestuario; hay talleres separados para ópera y ballet."],
+    ["¿Qué área fabrica todo lo que los artistas llevan en la cabeza, como máscaras o cabezas de animal?",["Sombrereros","Zapateros","Tintorería","Compras"],"Desde un sombrero hasta piezas artísticas de casi 1.5 metros."],
+    ["¿Qué hacen los vestuaristas en el teatro?",["Ayudan a los artistas a ponerse y quitarse el vestuario y lo limpian","Dibujan los bocetos de cada personaje","Tiñen las telas antes de cortarlas","Compran telas en el extranjero"],"Su trabajo cuida que todo permanezca intacto y nada se dañe."],
+    ["¿En qué área ocurren el primer y el último paso de la confección del vestuario?",["Tintorería","Sastrería","Zapatería","Gestión de vestuario"],"Primero se tiñe la tela; al final se agregan degradados, manchas o desgaste."],
+    ["¿Dónde comienza el proceso de producción de vestuario de cada ópera?",["En el departamento de compras","En la tintorería","En el probador","En el almacén de vestuario"],"Los compradores consiguen telas, prendas, zapatos, mercería, pintura textil y materiales para sombreros y joyería."],
+    ["¿Por qué es vital un calzado cómodo en la ópera?",["Las funciones pueden durar hasta seis horas, a veces en escenarios inclinados","Porque el público ve los pies de cerca","Porque los zapatos se reutilizan en cine","Porque lo exige el director de orquesta"],"Los zapateros pueden adaptar tacones, palas y decoraciones."],
+    ["¿Qué ocurre en la etapa “Selección y adquisición de telas”?",["Se eligen telas y materiales que se adaptan al diseño y al presupuesto","Se hacen las pruebas con los actores","Se reparan los trajes dañados","Se lee el guion por primera vez"],"Puede implicar buscar proveedores o fabricar piezas a medida."]
+  ],
+  match:[
+    { title:"Puestos del departamento de vestuario", pairs:[["Sastres","Confeccionan el vestuario"],["Sombrereros","Hacen todo lo que va en la cabeza"],["Vestuaristas","Ayudan a vestir y desvestir a los artistas"],["Zapateros","Crean calzado histórico, actual y futurista"],["Tintorería","Tiñe telas y agrega manchas o desgaste"],["Compras","Consigue telas, prendas y materiales"]]},
+    { title:"Tipos de diseñador teatral", pairs:[["Danza","Movimiento y flexibilidad"],["Ópera","Trajes opulentos y grandiosos"],["Teatro infantil","Colores llamativos y diseños divertidos"],["De época","Fidelidad a periodos históricos"],["Cultural y étnico","Representa culturas con conocimiento y respeto"]]}
+  ],
+  order:[{ title:"Proceso del diseñador de vestuario teatral", steps:["Análisis e investigación de guiones","Desarrollo de concepto","Creación de diseño","Selección y adquisición de telas","Construcción y pruebas","Ajustes y detalles finales","Mantenimiento y reparaciones"]}]
+},
+/* ------------------------------------------------------------ V3 */
+{ id:"v3", u:"v", n:"Vestuario en el cine", src:"Presentación 05",
+  key:[
+    "En la moda la ropa es la protagonista; en el vestuario la ropa acompaña y mejora una historia.",
+    "El cine exige cuidar los detalles (primeros planos) y el conjunto (tomas amplias) al mismo tiempo.",
+    "Fantasía, ciencia ficción y época son “programas de construcción”: los trajes no se compran, se construyen.",
+    "Cinco factores definen el tamaño del departamento: reparto, días de guion, género, acrobacias y tiempo de preparación.",
+    "Conceptos clave: libro de continuidad, biblia de vestuario, inventario, probador, múltiples y película de época."
+  ],
+  cards:[
+    ["Libro de continuidad","Registra con notas y fotos qué usa cada actor en cada escena (desgaste y estilo), porque se filma fuera de orden."],
+    ["Biblia de vestuario","Carpeta con investigación, fotos, bocetos, notas de pelo y maquillaje, paleta de colores y muestras de tela. Se comparte con el equipo."],
+    ["Probador","Cuarto donde el actor se prueba la ropa con el diseñador; funciona como laboratorio de personajes."],
+    ["Múltiples","Copias exactas del vestuario para actores principales, dobles de acción y reserva por pérdida o daño."],
+    ["Inventario de vestuario","Almacén del estudio o tienda de renta con miles de piezas modernas y de época."],
+    ["Ruta del plató vs. ruta de la oficina","Plató: figurinistas que visten y cuidan al elenco en el set. Oficina: operaciones, compras, construcción, contratación y presupuesto."],
+    ["Equipo mínimo de vestuario","Diseñador · Asistente de diseñador · Coordinador/asistente de producción · Supervisor · Vestuarista de set · Sastre."],
+    ["5 factores del tamaño del departamento","Tamaño del reparto · Días de guion · Género · Acrobacias · Tiempo de preparación."]
+  ],
+  qs:[
+    ["¿Cuál es la diferencia principal entre la moda y el diseño de vestuario?",["En la moda la ropa es la protagonista; en el vestuario acompaña y mejora una historia","La moda usa telas más caras","El vestuario solo se usa en teatro","No hay diferencia"],"El interés por el vestuario suele empezar por la moda, pero su objetivo es la historia."],
+    ["¿Por qué el vestuario de cine debe cuidar tanto los detalles como el conjunto?",["Porque hay primeros planos y también tomas amplias de grupo","Porque el público toca el vestuario","Porque se filma en orden","Porque solo se usa una cámara"],"En primer plano se ven bordados y pedrería; en toma abierta, la imagen completa."],
+    ["¿Cómo debe ser el traje de un doble de acción?",["Igual al del actor, una talla más grande para el relleno y con fuelles cosidos","De otro color para distinguirlo","Más barato y sencillo","Hecho solo con tela elástica"],"Los fuelles evitan que el pantalón se rompa a mitad de una patada."],
+    ["¿Cuántos cambios de vestuario tuvo Alicia Silverstone en “Clueless”?",["60","12","25","100"],"La diseñadora Mona May además tuvo que vestir a todos los extras."],
+    ["¿Qué es un “programa de construcción” en vestuario?",["Un proyecto (fantasía, ciencia ficción o época) cuyos trajes no se pueden comprar y hay que construir","Un software de patronaje","Un curso de sastrería","La construcción del set"],"Por eso necesitan más artesanos: sastres, costureras, agitadores y tintoreros."],
+    ["¿Qué hacen los agitadores y tintoreros?",["Hacen que la ropa nueva parezca usada","Animan al público en la premier","Mezclan pinturas para el set","Ordenan el inventario"],"Son parte de los artesanos que necesitan las series de construcción."],
+    ["En la “ruta del plató”, ¿qué hace el figurinista de camión?",["Gestiona la ropa en el remolque","Dibuja los bocetos","Compra telas","Edita la película"],"También hay figurinista clave, figurinistas de plató y figurinistas para actores de fondo."],
+    ["La “ruta de la oficina” se refiere a…",["Quienes se encargan de operaciones: compra o construcción, contratación y presupuesto","Los actores que ensayan en oficinas","Los diseñadores que trabajan desde casa","El transporte del vestuario"],"El supervisor lleva la logística; los coordinadores manejan recibos y compradores."],
+    ["¿Cuál de estos puestos NO está en el equipo mínimo recomendado de vestuario?",["Director de fotografía","Supervisor de vestuario","Vestuarista de set","Sastre"],"Mínimo: diseñador, asistente, coordinador/asistente de producción, supervisor, vestuarista de set y sastre."],
+    ["¿Cuál NO es uno de los cinco factores que afectan el tamaño del departamento de vestuario?",["La taquilla esperada","El tamaño del reparto","El género","Las acrobacias"],"Los 5: tamaño del reparto, días de guion, género, acrobacias y tiempo de preparación."],
+    ["Regla sugerida: por cada 8 personajes principales se agrega…",["Un asistente de diseñador de vestuario (y 3 días de sastrería)","Un director","Un camión de vestuario","Un ilustrador"],"Más reparto = más ropa para cubrir cuerpos y crear personajes."],
+    ["Si hay más de 20 actores de fondo por día de rodaje, se recomienda…",["Un supervisor de vestuario de fondo","Eliminar a los extras","Usar la ropa personal de los actores","Un segundo director"],"Es una de las reglas del factor “tamaño del reparto”."],
+    ["Por cada acrobacia con traje de época, fantasía o ciencia ficción se presupuestan…",["2 días de sastrería adicionales","Media jornada extra","1 semana de preparación","5 asistentes más"],"Con vestuario contemporáneo es 1 día adicional por truco."],
+    ["Si 10 protagonistas tienen en promedio 5 looks, ¿cuántos conjuntos se necesitan aproximadamente?",["50","15","10","500"],"10 × 5 = 50 conjuntos, y cada conjunto pide unas 5 opciones por pieza para la prueba."],
+    ["¿Para qué sirve el libro de continuidad?",["Registrar qué usa cada actor en cada escena, porque se filma fuera de orden","Guardar el presupuesto","Escribir el guion","Listar a los proveedores de tela"],"Anota desgaste (¿pelea? ¿lluvia?) y estilo (¿mangas arriba? ¿sin abrigo?)."],
+    ["La biblia de vestuario es…",["Una carpeta con investigación, bocetos, notas de pelo y maquillaje, paleta y muestras de tela","Un libro religioso de época","El contrato del diseñador","La lista de actores"],"Se comparte con director, diseñador de producción, actores, maquillistas y estilistas."],
+    ["¿Qué son los “múltiples”?",["Copias exactas del vestuario para dobles, acción y reserva","Varios diseños distintos para un personaje","Extras con el mismo traje","Actores que hacen varios papeles"],"Se guardan como reserva por si el original se pierde o daña."],
+    ["¿Qué es el probador en cine?",["El cuarto donde el actor se prueba la ropa; funciona como laboratorio de personajes","El lugar donde se prueba la cámara","La sala de edición","El almacén de utilería"],"Ahí se inventan personas nuevas combinando ropa y accesorios."],
+    ["La ropa comprada en tienda para una película moderna…",["También se considera “diseñada”: se eligió, alteró y envejeció para el personaje","No cuenta como vestuario","Solo se usa para extras","Debe devolverse sin cambios"],"Cada prenda usada en una película es vestuario."],
+    ["¿Qué hace el ilustrador de vestuario?",["Crea bosquejos basados en los diseños del diseñador para comunicar ideas","Ilustra los carteles de la película","Dibuja el storyboard de cámara","Pinta el set"],"Algunos diseñadores hacen sus propios bocetos o un collage de ideas."],
+    ["¿Quién desglosa el guion para mantener la continuidad y crea el presupuesto de vestuario en cine?",["El supervisor de vestuario","El sastre","El ilustrador","El vestuarista de fondo"],"También supervisa al equipo, la compra y la construcción del vestuario."]
+  ],
+  match:[
+    { title:"Herramientas y conceptos", pairs:[["Libro de continuidad","Registra qué usa cada actor en cada escena"],["Biblia de vestuario","Carpeta con investigación, bocetos, paleta y telas"],["Probador","Laboratorio de personajes"],["Múltiples","Copias exactas del vestuario"],["Inventario de vestuario","Almacén con miles de piezas modernas y de época"]]},
+    { title:"Factores que agrandan el equipo", pairs:[["Tamaño del reparto","Más personajes, más ropa y asistentes"],["Días de guion","Más looks por personaje"],["Género","Época, fantasía o ciencia ficción exigen construir"],["Acrobacias","Días extra de sastrería por cada truco"],["Tiempo de preparación","Menos tiempo, más personal"]]}
+  ],
+  order:[]
+},
+/* ------------------------------------------------------------ E1 */
+{ id:"e1", u:"e", n:"Introducción a la escenografía", src:"Presentación 06",
+  key:[
+    "Escenografía viene del griego skene (“cobertizo”) y graphos (“escritura” o “dibujo”). Es un cruce entre arquitectura y artes escénicas.",
+    "Su función principal: potenciar la narrativa visual y ambientar un contexto específico.",
+    "Tres objetivos del escenario: 1) dar contexto al espectador, 2) potenciar la narrativa, 3) aumentar la inmersión de espectadores y actores.",
+    "Factores: tipo de obra, lugar, luz, acústica, peso de los personajes (físico y narrativo) y materiales; también montaje, desmontaje y reciclaje.",
+    "En cine y TV el diseño escénico se llama diseño de producción.",
+    "Importancia: inmersión del espectador; identidad y diferenciación; apoyo a la narrativa y caracterización."
+  ],
+  cards:[
+    ["Skene + graphos","Skene = “cobertizo”; graphos = “escritura” o “dibujo”."],
+    ["Los 3 objetivos del escenario","1) Dar contexto al espectador · 2) Potenciar la narrativa · 3) Aumentar la inmersión de espectadores y actores."],
+    ["Factores de diseño y construcción","Tipo de obra · Lugar · Luz · Acústica · Peso de los personajes (físico y narrativo) · Materiales."],
+    ["Elementos de la escenografía","Corpóreos (decorado y utilería), iluminación, caracterización (vestuario, maquillaje, peluquería) y la puesta en escena."],
+    ["Teatro vs. cine","En teatro puede ser una sugerencia del entorno; en cine debe definir meticulosamente el área: fuera de ella los personajes no pueden vivir."],
+    ["La maqueta escenográfica","Herramienta de los escenógrafos desde la segunda mitad del siglo XIX; hoy se usa en teatro y cine."],
+    ["Línea del tiempo","Grecia (periactos) → Edad Media (dramatizaciones bíblicas, teatro Noh) → Renacimiento y Barroco (perspectiva) → Siglo XIX (iluminación a gas) → Siglo XX (cuarta pared, realidad aumentada, mapping)."],
+    ["3 factores de importancia","Inmersión del espectador · Identidad y diferenciación · Apoyo a la narrativa y caracterización."]
+  ],
+  qs:[
+    ["¿De qué voces griegas viene la palabra “escenografía”?",["Skene (cobertizo) y graphos (escritura o dibujo)","Skene (escena) y logos (palabra)","Theatron (lugar para ver) y graphos (dibujo)","Drama (acción) y skene (cobertizo)"],"Skene = cobertizo; graphos = escritura o dibujo."],
+    ["La escenografía puede entenderse como un cruce entre…",["La arquitectura y las artes escénicas","La moda y la fotografía","La música y la pintura","La literatura y el cine"],"Por eso muchos escenógrafos tienen formación en arquitectura."],
+    ["¿Cuál es la función principal de la escenografía?",["Potenciar la narrativa visual y ambientar un contexto específico","Decorar el teatro para que se vea bonito","Ocultar a los técnicos","Reducir el presupuesto"],"Más allá de decorar, transforma un espacio vacío en un lugar cargado de significados."],
+    ["¿Cuál es el PRIMER objetivo principal del escenario?",["Darle contexto al espectador","Potenciar la narrativa","Aumentar la inmersión","Lucir el trabajo del escenógrafo"],"Segundo: potenciar la narrativa. Tercero: aumentar la inmersión."],
+    ["El tercer objetivo del escenario es aumentar la inmersión de…",["Espectadores y actores","Solo el director","Solo los críticos","Los técnicos de luces"],"Un buen escenario transporta a ambos al mundo de la obra."],
+    ["¿Cuál NO es un factor que interviene en el diseño y construcción de una escenografía?",["El número de boletos vendidos","La acústica","La luz","El peso de los personajes"],"Factores: tipo de obra, lugar, luz, acústica, peso de los personajes (físico y narrativo) y materiales."],
+    ["Además del diseño, la escenografía arquitectónica considera…",["Los tiempos de montaje y desmontaje y los materiales reciclables","El precio de los boletos","El vestuario de los extras","Los derechos de autor del guion"],"Igual que se piensa en la arquitectura en general."],
+    ["En cine y televisión, al diseño escénico se le conoce como…",["Diseño de producción","Dirección de fotografía","Diseño de interiores","Utilería"],"Diseño escénico = diseño de escenario = diseño de escenografía."],
+    ["En el teatro isabelino (1500-1600), las obras se escribían para…",["Depender lo menos posible de la escenografía","Usar escenografías enormes","Proyectar video","Romper la cuarta pared"],"El objetivo era transmitir atmósfera sin quitar nada a los actores."],
+    ["¿Qué distingue a la escenografía de cine frente a la de teatro?",["En cine debe definir meticulosamente el espacio; en teatro puede ser solo una sugerencia","En cine nunca se construyen sets","En teatro siempre es más realista","No hay ninguna diferencia"],"En cine es un área fuera de la cual los personajes no pueden vivir."],
+    ["¿Cómo usó la escenografía la serie WandaVision?",["Basó cada episodio en una década distinta, empezando por los años 50","Filmó todo con pantalla verde","Usó un solo set para toda la serie","Copió escenarios del teatro isabelino"],"La escenografía ancla al espectador en cada época."],
+    ["Música clásica, jazz y a cappella suelen presentarse en…",["Escenarios llanos centrados en los artistas","Estadios con pirotecnia","Escenarios giratorios","Sets de cine"],"Pop, rock, hip-hop y electrónica redefinen constantemente las normas de la escenografía."],
+    ["¿Por qué suelen ser arquitectos quienes diseñan escenografías?",["Porque los conocimientos en técnicas de construcción son indispensables","Porque son los únicos que dibujan","Porque lo exige la ley","Porque cobran menos"],"Al profesional que diseña escenografías se le llama escenógrafo."],
+    ["¿Desde cuándo los escenógrafos usan la maqueta como herramienta de trabajo?",["Desde la segunda mitad del siglo XIX","Desde la Antigua Grecia","Desde 1990","Desde el Renacimiento"],"Surgió con nuevos escenógrafos que querían cambiar la escena."],
+    ["Los periactos, los ritos dionisíacos y las tragedias pertenecen a…",["La Antigua Grecia","La Edad Media","El Siglo XIX","El Siglo XX"],"Es el punto de partida de la línea del tiempo de la escenografía."],
+    ["Las dramatizaciones bíblicas y el teatro Noh japonés aparecen en la línea del tiempo en…",["La Edad Media","El Renacimiento y Barroco","El Siglo XIX","La Antigua Grecia"],"Después vendrá la escenografía con perspectiva."],
+    ["La escenografía con perspectiva aparece en…",["El Renacimiento y Barroco","La Antigua Grecia","La Edad Media","El Siglo XX"],"Junto con el realismo."],
+    ["La iluminación a gas y los decorados alejados del realismo son característicos de…",["El Siglo XIX","El Siglo XX","La Edad Media","El Renacimiento"],"También aparece la iluminación para cine."],
+    ["La ruptura de la cuarta pared, la realidad aumentada y el mapping corresponden a…",["El Siglo XX","El Siglo XIX","El Barroco","La Edad Media"],"Es la etapa más reciente de la línea del tiempo de clase."],
+    ["¿Cuáles son los 3 factores de importancia de la escenografía?",["Inmersión; identidad y diferenciación; apoyo a la narrativa y caracterización","Precio; tamaño; color","Luz; sonido; vestuario","Guion; casting; edición"],"La escenografía va más allá de la decoración."],
+    ["¿Con qué herramientas comunica el escenógrafo su idea en las reuniones creativas?",["Moodboard, dibujos técnicos y bocetos","Solo con palabras","Con el guion final","Con el presupuesto"],"Debe dominar medios tradicionales (dibujo, maquetas) y digitales (2D y 3D)."],
+    ["En museos y exposiciones, la escenografía se usa para…",["Organizar la presentación de colecciones y crear recorridos","Vender las obras","Iluminar solo la entrada","Reemplazar a los curadores"],"Es la habilidad de diseño de espacios de exhibición y museografía."]
+  ],
+  match:[{ title:"Origen y objetivos", pairs:[["Skene","Cobertizo"],["Graphos","Escritura o dibujo"],["Primer objetivo","Dar contexto al espectador"],["Segundo objetivo","Potenciar la narrativa"],["Tercer objetivo","Aumentar la inmersión"]]}],
+  order:[{ title:"Línea del tiempo de la escenografía", steps:["Antigua Grecia: periactos y tragedias","Edad Media: dramatizaciones bíblicas y teatro Noh","Renacimiento y Barroco: escenografía con perspectiva","Siglo XIX: iluminación a gas","Siglo XX: cuarta pared, realidad aumentada y mapping"]}]
+},
+/* ------------------------------------------------------------ E2 */
+{ id:"e2", u:"e", n:"Escenografía en el teatro", src:"Presentación 07",
+  key:[
+    "El término se asocia a la pintura de escenas y al dibujo arquitectónico en perspectiva; en el siglo XX se vuelve una contribución dinámica y kinestésica.",
+    "Mendes Ribeiro: la escenografía se ocupa de la habitabilidad del espacio. Svoboda: “La verdadera escenografía es lo que sucede cuando se abre el telón”.",
+    "Tipos: realista, abstracta, funcional, minimalista, naturalista, pintada y romántica.",
+    "Elementos: decorado, utilería, iluminación, vestuario y maquillaje, arte escénico y pintura.",
+    "Otros elementos: tramoya, boceto, maqueta, planos, bastidores, soportes, plataformas, tarimas y carros.",
+    "Consideraciones técnicas: presupuesto, tamaño y forma del escenario (proscenio, empuje, arena) y efectos especiales con seguridad."
+  ],
+  cards:[
+    ["Escenografía realista","Reproduce de manera fiel y verosímil el lugar de la ficción: explícita, literal y abundante en detalles."],
+    ["Escenografía abstracta","Formas que no corresponden con la realidad; sugiere sensaciones sin objetos reconocibles."],
+    ["Escenografía funcional","Determinada por los requerimientos dramáticos; facilita movimientos y acciones de los actores."],
+    ["Escenografía minimalista","Solo lo estrictamente indispensable; suele ser más exigente para los actores."],
+    ["Escenografía pintada y romántica","Pintada: decorado en paneles frontales intercambiables. Romántica (1790-1830): atmósfera lúgubre y tenebrosa."],
+    ["Tramoya","Mecanismos que realizan los cambios de decorado y apoyan los efectos especiales."],
+    ["Bastidores","Espacio detrás y a los lados del escenario, con armazones, donde se preparan los actores."],
+    ["Juego completo de dibujo escénico","Planta básica (elementos fijos) · Plano compuesto (móviles y su almacenamiento) · Sección · Alzados frontales."],
+    ["Trampantojo","Técnica de pintura escénica que engaña a la vista."]
+  ],
+  qs:[
+    ["¿A qué se asocian los orígenes del término escenografía?",["A la pintura de escenas y al dibujo arquitectónico en perspectiva","A la fotografía","Al diseño de moda","A la música coral"],"En el siglo XX el término gana popularidad con un sentido más dinámico."],
+    ["En el siglo XX, el espacio escénico empezó a verse como una contribución…",["Dinámica y kinestésica (táctil y de movimiento)","Solo decorativa","Estática y pictórica","Exclusivamente sonora"],"Se diferencia del diseño estático y pictórico de siglos anteriores."],
+    ["Según João Mendes Ribeiro, la escenografía se ocupa principalmente de…",["La habitabilidad del espacio","El color de los telones","El presupuesto","La venta de boletos"],"Crear espacios con los que los cuerpos escénicos puedan interactuar."],
+    ["“La verdadera escenografía es lo que sucede cuando se abre el telón”. ¿Quién lo dijo?",["Josef Svoboda","João Mendes Ribeiro","Jorge Gorostiza","Richard Sylbert"],"Svoboda influyó mucho en el uso contemporáneo del término."],
+    ["Escenografía explícita, literal y abundante en detalles que reproduce fielmente el lugar:",["Realista","Abstracta","Minimalista","Pintada"],"La realista busca ser fiel y verosímil."],
+    ["Usa formas que no corresponden con la realidad y sugiere sensaciones sin objetos reconocibles:",["Abstracta","Realista","Naturalista","Funcional"],"No representa un lugar ni un tiempo específicos."],
+    ["Está determinada por los requerimientos dramáticos y facilita los movimientos de los actores:",["Funcional","Romántica","Pintada","Realista"],"Se adapta a las necesidades expresivas de la obra."],
+    ["Usa solo lo estrictamente indispensable y suele ser más exigente para los actores:",["Minimalista","Realista","Romántica","Pintada"],"La menor cantidad de elementos posible."],
+    ["El decorado está pintado en paneles frontales que pueden intercambiarse entre escenas:",["Pintada","Abstracta","Funcional","Naturalista"],"Los paneles permanecen inalterables durante la escena."],
+    ["Escenografía de atmósfera lúgubre y tenebrosa, surgida entre 1790 y 1830:",["Romántica","Minimalista","Realista","Funcional"],"Propia del movimiento romántico."],
+    ["¿Qué incluye el decorado?",["Elementos fijos (paredes, columnas) y móviles (telones, falsas paredes, proyecciones)","Solo los muebles","Solo la iluminación","El vestuario de los actores"],"Suele dar el contexto temporal y espacial de la ficción."],
+    ["Un reloj detenido que representa a un personaje atrapado en el pasado es utilería de uso…",["Simbólico","Literal","Decorativo sin significado","De efectos especiales"],"La utilería puede tener uso literal (una pluma para escribir) o simbólico."],
+    ["Según la presentación, una luz muy tenue puede sugerir…",["La cercanía de la muerte","Una fiesta","El mediodía","Una escena de comedia"],"La iluminación genera atmósferas y guía la mirada del público."],
+    ["Un rey con corona y capa que, al ser desterrado, cambia de ropa y maquillaje ejemplifica…",["El vestuario y maquillaje como elementos de la escenografía","La tramoya","La utilería decorativa","La escenografía pintada"],"Vestuario y maquillaje caracterizan a los personajes y sus cambios."],
+    ["¿Qué es el trampantojo?",["Una técnica de pintura que engaña a la vista","Un mecanismo para cambiar decorados","Un tipo de telón","Una plataforma móvil"],"Es parte del arte escénico y pintura; también se puede usar mapping."],
+    ["Los mecanismos que realizan los cambios de decorado y apoyan los efectos especiales se llaman…",["Tramoya","Bastidores","Tarimas","Planos"],"Quienes la operan son los tramoyistas."],
+    ["¿Qué son los bastidores?",["El espacio detrás y a los lados del escenario donde se preparan los actores","Los planos a escala","Los muebles del set","Los focos de luz"],"Está compuesto por armazones a los lados del escenario."],
+    ["¿Cuál es la diferencia entre planos y maqueta?",["Los planos son 2D a escala; la maqueta es una recreación 3D","Son lo mismo","La maqueta es 2D y los planos 3D","Los planos solo muestran la iluminación"],"El boceto, en cambio, se hace a mano alzada."],
+    ["Tradicionalmente, ¿cuándo se consideraba que una escenografía había fracasado?",["Si el público la veía “como escenografía”","Si costaba poco","Si era minimalista","Si tenía proyecciones"],"Su propósito era un entorno donde los actores existieran con naturalidad."],
+    ["En la obra “Network” en Broadway, la escenografía incluía…",["Más de 50 pantallas, un videowall LED y 6 proyectores con video en vivo","Solo telones pintados","Un bosque real","Una pista de hielo"],"Es un ejemplo de diseño escénico amplificado con tecnología."],
+    ["En un juego completo de dibujo escénico, el plano compuesto muestra…",["Los elementos móviles, su posición en escena y su almacenamiento","Solo los elementos fijos","El vestuario","El guion"],"La planta básica muestra los fijos; además hay sección y alzados frontales."],
+    ["¿Qué configuraciones de escenario menciona la presentación?",["Proscenio, empuje y arena","Circular, cuadrado y triangular","Cine, TV y radio","Interior, exterior y mixto"],"Cada una impone restricciones espaciales únicas."],
+    ["Crear un área entre bastidores para que se muevan actores y tramoyistas es una decisión de diseño…",["Interna","Externa","Decorativa","Opcional"],"Las decisiones externas evocan ambientación, atmósfera, personajes o subtexto."],
+    ["Pirotecnia, caída de piezas o iluminación especial requieren sobre todo…",["Amplias consideraciones de seguridad","Más actores","Menos ensayos","Telones pintados"],"El diseñador decide qué se puede lograr con el presupuesto y la capacidad técnica."]
+  ],
+  match:[
+    { title:"Tipos de escenografía", pairs:[["Realista","Fiel, literal y llena de detalles"],["Abstracta","Sugiere sensaciones sin objetos reconocibles"],["Funcional","Facilita movimientos y acciones"],["Minimalista","Solo lo indispensable"],["Pintada","Decorado en paneles frontales"],["Romántica","Atmósfera lúgubre y tenebrosa"]]},
+    { title:"Otros elementos del escenario", pairs:[["Tramoya","Mecanismos para cambiar decorados"],["Boceto","Dibujo a mano alzada del espacio"],["Maqueta","Recreación del escenario en 3D"],["Planos","Representación en 2D a escala"],["Bastidores","Donde se preparan los actores"],["Soportes","Aguantan el peso de la escenografía"]]}
+  ],
+  order:[{ title:"Trabajo del escenógrafo teatral", steps:["Lectura atenta del guion","Reuniones con el equipo de diseño","Concretar la visión del director","Bocetos","Maquetas y renders","Planos finales para construcción"]}]
+},
+/* ------------------------------------------------------------ E3 */
+{ id:"e3", u:"e", n:"Escenografía en el cine", src:"Presentación 08",
+  key:[
+    "En cine la escenografía suele estar a cargo del diseñador de producción, en estrecha colaboración con el director.",
+    "Gorostiza: el escenógrafo de cine no copia la realidad, crea; usa falsas perspectivas y trucos ópticos porque el ojo de la cámara no es el ojo humano.",
+    "A considerar: año de la historia, género y si los lugares son realistas o imaginados.",
+    "Proceso: conceptualización → desarrollo de diseño → reuniones de preproducción → construcción → vestir el escenario.",
+    "Maquetas en cine: escenarios complejos o destrucción de edificios a menor costo. Nuevas tecnologías: diseño de sets en VR."
+  ],
+  cards:[
+    ["Diseñador de producción","Primera persona cualificada del Departamento de Dirección Artística; expresa gráficamente cómo se verán los escenarios del guion."],
+    ["Jorge Gorostiza","El escenógrafo de cine no copia la realidad: crea un espacio nuevo, a veces con falsas perspectivas y trucos ópticos."],
+    ["3 cosas a tomar en cuenta","Año de la historia (época, actual o futuro) · Género · Lugares realistas o imaginados."],
+    ["El Resplandor","El Hotel Overlook crea tensión y presagia la caída en la locura: la escenografía mejora la narrativa."],
+    ["Blade Runner 2049","Su paisaje distópico refleja la deshumanización y la ambigüedad moral: refleja el estado de ánimo."],
+    ["Amélie","Decorados vibrantes que reflejan el tono y la personalidad de la protagonista: el entorno como personaje."],
+    ["Vestir el escenario","Último paso: colocar muebles, utilería y detalles para que el set se sienta real y vivido (ej. Naomi Shohan en Belleza Americana)."],
+    ["Maquetas en el cine","Crean escenarios e imágenes complejas, incluso destrucción de edificios, a un costo mucho menor."]
+  ],
+  qs:[
+    ["En el cine, ¿quién suele estar a cargo del diseño de escenografía?",["El diseñador de producción","El director de fotografía","El editor","El sonidista"],"Colabora estrechamente con el director para dar vida a los aspectos visuales del guion."],
+    ["Según Jorge Gorostiza, el escenógrafo de cine generalmente…",["No copia la realidad: crea e inventa un nuevo espacio","Reproduce los lugares con sus medidas exactas","Solo filma en locaciones reales","Trabaja sin el director"],"Incluso al copiar un lugar, deforma o reduce partes para ahorrar esfuerzo y dinero."],
+    ["¿Por qué un set de cine puede usar falsas perspectivas y trucos ópticos?",["Porque el ojo de la cámara no es igual al ojo humano","Porque es ilegal construir sets reales","Porque el público no ve las películas completas","Porque así lo pide el vestuario"],"Un espacio reconstruido puede parecer real sin serlo."],
+    ["¿Cuál NO es un elemento a tomar en cuenta al diseñar escenarios para cine?",["La marca de la cámara","El año de la historia","El género","Si los lugares son realistas o imaginados"],"El género permite buscar películas parecidas como referencia."],
+    ["En “El Resplandor”, el Hotel Overlook…",["Crea tensión y presagia la caída en la locura del protagonista","Refleja la alegría de la protagonista","Representa un futuro distópico","Es una maqueta destruida"],"Ejemplo de escenografía que mejora la narrativa."],
+    ["¿Qué refleja el paisaje urbano de “Blade Runner 2049”?",["Temas de deshumanización y ambigüedad moral","La infancia del protagonista","Una comedia romántica","La moda de los años 50"],"Ejemplo de escenografía que refleja el estado de ánimo."],
+    ["Los vibrantes decorados de “Amélie” son ejemplo de…",["Caracterización del entorno: el espacio refleja la personalidad de la protagonista","Escenografía abstracta","Utilería de efectos especiales","Un set de realidad virtual"],"La escenografía puede convertir el entorno en un personaje."],
+    ["Según la presentación, el diseño de una película…",["No tiene que ver con diseño de interiores ni con moda; está al servicio del arte dramático","Es lo mismo que decorar una casa","Depende solo del vestuario","Se hace después de filmar"],"También hay que facilitar que los decorados puedan filmarse e invertir bien el dinero."],
+    ["El diseñador de producción es la primera persona cualificada de qué departamento?",["Dirección Artística","Fotografía","Sonido","Producción ejecutiva"],"Interviene con criterio propio en la preparación escenográfica."],
+    ["¿Cuál es la primera etapa del proceso de diseño de escenarios en cine?",["Conceptualización","Construcción","Vestir el escenario","Reuniones de preproducción"],"Se lee el guion, se generan ideas y se crean bocetos o mood boards."],
+    ["En las reuniones de preproducción, el diseñador de producción…",["Presenta sus diseños al director y equipo, analizan su viabilidad y finalizan la estética","Contrata a los actores","Edita el tráiler","Compra el vestuario"],"Después viene la construcción."],
+    ["¿Qué implica “vestir el escenario”?",["Colocar muebles, utilería y detalles para que se sienta real y vivido","Ponerle vestuario a los actores","Cubrir el set con telas","Pintar el piso"],"Es el paso final del proceso."],
+    ["En “Belleza Americana”, Naomi Shohan usó colores y objetos específicos para…",["Reflejar los estados emocionales de los personajes","Ahorrar presupuesto","Imitar a Tim Burton","Hacer una comedia"],"Ejemplo de vestir el escenario con intención narrativa."],
+    ["¿Por qué el cine usa maquetas arquitectónicas?",["Para crear escenarios complejos e incluso destruir edificios a un costo mucho menor","Porque no existen efectos digitales","Para vender juguetes","Porque son más grandes que los sets reales"],"Aunque parezca un recurso austero, puede lograr más realismo."],
+    ["¿Qué película se menciona por diseñar su set en realidad virtual con Unreal Engine?",["John Wick: Capítulo 3 – Parabellum","El Resplandor","Amélie","The Grand Budapest Hotel"],"Ejemplo de nuevas tecnologías en escenografía."],
+    ["La fase de construcción incluye carpintería, pintura, decoración y a veces…",["La búsqueda de locaciones para exteriores","El casting","La edición","La música"],"Ocurre una vez aprobados los diseños."]
+  ],
+  match:[{ title:"Películas y lo que nos enseñan", pairs:[["El Resplandor","Tensión y presagio de locura"],["Blade Runner 2049","Deshumanización y ambigüedad moral"],["Amélie","El entorno refleja la personalidad"],["Belleza Americana","Colores y objetos reflejan emociones"],["John Wick 3","Set diseñado en realidad virtual"]]}],
+  order:[{ title:"Proceso de diseño de escenarios en cine", steps:["Conceptualización","Desarrollo de diseño","Reuniones de preproducción","Construcción","Vestir el escenario"]}]
+},
+/* ------------------------------------------------------------ U1 */
+{ id:"u1", u:"u", n:"Introducción a la utilería", src:"Presentación 09",
+  key:[
+    "La utilería nace en la Antigua Grecia: vasijas como urnas y piedras como papeletas de votación. En obras de Shakespeare se usaban cráneos reales.",
+    "Atrezo viene del italiano attrezzo. Es cualquier objeto en escena que no es parte del decorado ni lo viste el actor. Sus responsables: atrecistas o utileros.",
+    "Tipos: enfática, de personaje o de mano, de escena y practicable.",
+    "Consideraciones: necesidades de la historia, realismo vs. estilización, abastecimiento vs. elaboración, precisión del período, funcionalidad, cohesión, seguridad y movimiento.",
+    "Componentes clave: propósito narrativo, interacción con el actor y cohesión con otros elementos."
+  ],
+  cards:[
+    ["Origen de la utilería","Antigua Grecia: vasijas para representar urnas y piedras como papeletas de votación."],
+    ["Atrezo","Del italiano attrezzo. Objetos y enseres de la representación que no son decorado ni vestuario del actor."],
+    ["Utilería enfática","Indispensable para la acción, la trama o la psicología del personaje: copa envenenada, gafas, reloj parado."],
+    ["Utilería de personaje o de mano","Objetos que manipulan los actores: un paraguas, un periódico, un bolso."],
+    ["Utilería de escena","Parte del decorado que permanece en escena: cuadro, alfombra, teléfono fijo, televisor."],
+    ["Utilería practicable","Funciona como en la vida real: un grifo del que sale agua, una lámpara que se enciende."],
+    ["Supervisor de atrezo","Trabaja entre el diseñador y los fabricantes; ve la caja de la maqueta y define durabilidad, materiales, uso y almacenamiento."],
+    ["Componentes clave","Propósito narrativo · Interacción con el actor · Cohesión con otros elementos."]
+  ],
+  qs:[
+    ["¿Dónde se originaron los accesorios de utilería?",["En la Antigua Grecia","En el Renacimiento","En Hollywood","En el teatro Noh"],"Se usaban vasijas para representar urnas y piedras como papeletas de votación."],
+    ["En la Antigua Grecia, ¿qué representaban las piedras en escena?",["Papeletas de votación","Monedas","Comida","Armas"],"Las vasijas representaban urnas."],
+    ["¿Por qué en obras de Shakespeare se usaban cráneos reales?",["No existía tecnología para hacer cráneos falsos que parecieran reales","Era una tradición religiosa","Eran más baratos que la madera","Lo pedía el público"],"Se contrataba a sepultureros para conseguirlos."],
+    ["¿De qué idioma viene la palabra “atrezo”?",["Del italiano (attrezzo)","Del francés","Del griego","Del latín"],"La RAE lo define como el conjunto de objetos y enseres de una representación escénica."],
+    ["Según la definición, el atrezo es cualquier objeto en escena que…",["No forma parte del decorado ni lo viste el actor","Forma parte del vestuario","Es una pared del set","Es un efecto de luz"],"Puede ir desde un cuaderno hasta una fuente."],
+    ["¿Cómo se llama a las personas responsables del atrezo?",["Atrecistas o utileros","Tramoyistas","Figurinistas","Escenógrafos"],"Junto con vestuario y escenografía, la utilería es un recurso necesario para la representación."],
+    ["La copa de vino envenenado que causa la muerte de un personaje es utilería…",["Enfática","De escena","Practicable","Decorativa"],"Enfática: indispensable para la acción, la trama o la psicología del personaje."],
+    ["Un paraguas, un periódico o un bolso que manipula el actor son utilería…",["De personaje o de mano","De escena","Enfática","Practicable"],"Son los objetos que los actores manipulan en escena."],
+    ["Un cuadro en la pared o una alfombra que permanecen toda la escena son utilería…",["De escena","De mano","Enfática","Practicable"],"Forman parte del decorado durante toda la representación."],
+    ["Una lámpara que realmente se enciende con su interruptor es utilería…",["Practicable","Decorativa","Enfática","De mano"],"Practicable: puede usarse como en la vida real."],
+    ["Un smartphone en una historia del siglo XIX es un error de…",["Precisión del período (anacronismo)","Funcionalidad","Seguridad","Movimiento de cámara"],"Hasta la pantalla de una lámpara o una taza de té cuentan."],
+    ["Personajes con ropa impecable en un búnker postapocalíptico mugriento rompen la…",["Cohesión con vestuario y maquillaje","Precisión del período","Seguridad en el set","Funcionalidad"],"Escenografía, utilería, vestuario y maquillaje deben armonizar."],
+    ["Decidir entre conseguir la utilería o fabricarla desde cero equilibra…",["Tiempo, presupuesto y la visión del director","Solo el gusto del actor","El color del set","La música"],"Es la consideración de abastecimiento vs. elaboración."],
+    ["Un bolígrafo que necesita escribir o una puerta que debe crujir se relaciona con…",["La funcionalidad","El realismo vs. estilización","La precisión del período","La seguridad"],"La utilería no siempre es estática."],
+    ["¿Qué hace el supervisor de atrezo antes de los ensayos?",["Se reúne con el diseñador para ver la caja de la maqueta y definir qué accesorios se necesitan","Escribe el guion","Elige a los actores","Diseña la iluminación"],"Luego busca en la tienda de accesorios, compra, adapta o fabrica desde cero."],
+    ["¿Cuáles son los componentes clave del diseño de utilería?",["Propósito narrativo, interacción con el actor y cohesión con otros elementos","Precio, tamaño y peso","Color, textura y brillo","Origen, marca y garantía"],"Cada objeto debe enriquecer la historia y hacer el mundo más creíble."],
+    ["La “utilería blanda” incluye…",["Tapicería, cojines y cortinas","Espadas y escudos","Muebles de metal","Armas"],"También artículos de papel."],
+    ["Un set debe dejar espacio para la cámara, la iluminación y los actores. Esta consideración se llama…",["Diseño flexible para el movimiento","Realismo vs. estilización","Abastecimiento vs. elaboración","Precisión del período"],"Debe verse bien y también cumplir las exigencias técnicas del rodaje."]
+  ],
+  match:[{ title:"Tipos de utilería", pairs:[["Enfática","Indispensable para la trama, como una copa envenenada"],["De mano","Objetos que manipula el actor, como un paraguas"],["De escena","Parte del decorado, como un cuadro en la pared"],["Practicable","Funciona de verdad, como una lámpara que enciende"]]}],
+  order:[]
+},
+/* ------------------------------------------------------------ U2 */
+{ id:"u2", u:"u", n:"Utilería en el teatro", src:"Presentación 10",
+  key:[
+    "La utilería teatral son todos los objetos físicos de una obra distintos de decorados y vestuario: de un bolígrafo a una mesa.",
+    "Tipos: de mano, de mobiliario, decorativa y de efectos especiales. También puede ser simbólica y abstracta.",
+    "Funciones narrativas: apoyo a la acción, definición de espacio y tiempo, y desarrollo de personajes.",
+    "Proceso: concepto → investigación → bocetos y maquetas → materiales → construcción → pintura y toques finales → instalación y ensayos.",
+    "Impacto emocional: genera respuestas emocionales, crea cercanía, potencia momentos dramáticos y facilita la memoria."
+  ],
+  cards:[
+    ["Utilería de mano","Objetos que el actor manipula directamente: libros, copas, espadas, teléfonos."],
+    ["Utilería de mobiliario","Objetos grandes como sillas, mesas y estanterías que forman parte del escenario e interactúan con los personajes."],
+    ["Utilería decorativa","Ambienta pero no necesariamente se manipula: un jarrón, un cuadro, una lámpara."],
+    ["Utilería de efectos especiales","Al usarse produce efectos: una pistola que suena, un artefacto que libera humo o luces."],
+    ["Funciones narrativas","Apoyo a la acción · Definición de espacio y tiempo · Desarrollo de personajes."],
+    ["Utilería simbólica y abstracta","Común en teatro contemporáneo o experimental: una silla puede simbolizar poder, autoridad o confinamiento."],
+    ["La mesa de accesorios","Fuera del escenario y accesible: los actores toman y devuelven su utilería rápido, incluso a oscuras."],
+    ["Impacto emocional","Genera respuestas emocionales · Crea cercanía · Potencia momentos dramáticos · Facilita la memoria y la reflexión."]
+  ],
+  qs:[
+    ["¿Qué es la utilería teatral?",["Todos los objetos físicos de una obra, distintos de los decorados y el vestuario","Solo los muebles del escenario","Los telones","El maquillaje de los actores"],"Puede ser tan pequeña como un bolígrafo o tan grande como una mesa."],
+    ["Libros, copas, espadas o teléfonos que el actor manipula son utilería…",["De mano","De mobiliario","Decorativa","De efectos especiales"],"Cualquier objeto que el actor manipula directamente."],
+    ["Sillas, mesas y estanterías que forman parte del escenario e interactúan con los personajes son utilería…",["De mobiliario","De mano","Decorativa","Simbólica"],"Son los objetos más grandes."],
+    ["Un jarrón o un cuadro que ambientan pero no se manipulan son utilería…",["Decorativa","De mano","De efectos especiales","De mobiliario"],"Contribuyen a la ambientación."],
+    ["Una pistola de utilería que suena o un artefacto que libera humo es utilería…",["De efectos especiales","Decorativa","De mobiliario","De mano"],"Producen efectos al ser activados."],
+    ["Un personaje firma un documento o usa una linterna en una escena oscura. ¿Qué función cumple la utilería?",["Apoyo a la acción","Definición de espacio y tiempo","Decoración","Memoria y reflexión"],"Permite realizar acciones clave de manera creíble."],
+    ["Una máquina de escribir antigua sugiere que la obra ocurre en el pasado. Esta función es…",["Definición de espacio y tiempo","Apoyo a la acción","Crear cercanía","Efectos especiales"],"Un celular moderno, en cambio, indica un contexto actual."],
+    ["Una maleta vieja sugiere pobreza; un maletín de cuero pulido, poder. Esta función es…",["Desarrollo de personajes","Definición de espacio y tiempo","Apoyo a la acción","Ambientación decorativa"],"Los objetos dan pistas de gustos, estatus o estado emocional."],
+    ["En teatro experimental, una silla que representa poder o confinamiento es utilería…",["Simbólica y abstracta","De mobiliario literal","Practicable","Decorativa"],"Rompe expectativas y genera nuevas interpretaciones."],
+    ["¿Con qué etapa comienza la creación de utilería teatral?",["Desarrollo del concepto","Selección de materiales","Construcción y fabricación","Pintura y toques finales"],"Directores, escenógrafos y maestros de utilería definen la visión general."],
+    ["Al seleccionar materiales para utilería, los diseñadores consideran…",["Peso, durabilidad y atractivo visual","Solo el precio","La marca","El color del telón"],"Ligeros para lo que se mueve; robustos para lo que necesita estabilidad."],
+    ["En la etapa de pintura y toques finales se busca…",["Envejecer, texturizar y lograr un aspecto realista que se integre a la estética","Elegir a los actores","Escribir el guion","Desmontar el escenario"],"Ej.: una mesa pintada para parecer vieja o un cofre con detalles intrincados."],
+    ["¿Para qué sirve la mesa de accesorios?",["Para que los actores tomen y devuelvan su utilería rápido, incluso a oscuras","Para exhibir utilería al público","Para comer entre funciones","Para guardar el vestuario"],"Se coloca fuera del escenario sin estorbar cambios de escena."],
+    ["El bastón de Charlie Chaplin es un ejemplo de utilería que…",["Enriquece al personaje y sirve para gags cómicos","Solo decora","Es de efectos especiales","Define la época medieval"],"Un accesorio simple puede enriquecer el personaje y el humor."],
+    ["En “Romeo y Julieta”, la rosa simboliza…",["El amor y la belleza","La muerte","El poder","La guerra"],"«Una rosa con cualquier otro nombre olería igual de bien»."],
+    ["Una taza de café o una foto familiar hacen a los personajes más humanos. Este impacto emocional es…",["Crear cercanía","Potenciar momentos dramáticos","Generar respuestas emocionales","Facilitar la memoria"],"Ayuda al público a identificarse con los personajes."],
+    ["Un personaje empuñando un arma en una confrontación tensa…",["Potencia el momento dramático","Crea cercanía","Define la época","Es utilería decorativa"],"Amplifica la sensación de peligro y urgencia."]
+  ],
+  match:[
+    { title:"Tipos de utilería teatral", pairs:[["De mano","Libros, copas, espadas"],["De mobiliario","Sillas, mesas, estanterías"],["Decorativa","Jarrón o cuadro que ambienta"],["De efectos especiales","Pistola que suena o artefacto con humo"]]},
+    { title:"Funciones e impacto", pairs:[["Apoyo a la acción","Firmar un documento, usar una linterna"],["Espacio y tiempo","Una máquina de escribir antigua"],["Desarrollo de personajes","Maleta vieja vs. maletín de cuero"],["Crear cercanía","Una taza de café o una foto familiar"],["Momento dramático","Empuñar un arma en una confrontación"]]}
+  ],
+  order:[{ title:"Proceso de creación de utilería teatral", steps:["Desarrollo del concepto","Investigación e inspiración","Bocetos y maquetas","Selección de materiales","Construcción y fabricación","Pintura y toques finales","Instalación y ensayos"]}]
+},
+/* ------------------------------------------------------------ U3 */
+{ id:"u3", u:"u", n:"Utilería en el cine", src:"Presentación 11",
+  key:[
+    "El diseñador de accesorios conceptualiza y diseña props para cine, animación, TV y videojuegos, y entrega dibujos y especificaciones al equipo.",
+    "Habilidades clave: habilidad artística, pensamiento creativo, atención al detalle, conocimientos técnicos (Photoshop, Illustrator, 3D) y colaboración.",
+    "Proceso: análisis de guiones → diseño y boceto → creación → ajustes y reparaciones en set → gestión presupuestaria → posproducción.",
+    "Envejecimiento: angustia física, técnicas de pintura (pincel seco, lavados), calor y sol, envejecimiento químico.",
+    "Props especiales: rompibles (vidrio de azúcar), insonoros, animales y comestibles."
+  ],
+  cards:[
+    ["Diseñador de accesorios","Conceptualiza y diseña props para películas, animación, TV y videojuegos; asegura la consistencia visual del mundo."],
+    ["Angustia física","Agregar marcas y desgaste con lija, cepillos de alambre o un martillo viejo."],
+    ["Pincel seco","Poca pintura en el pincel, aplicada ligeramente: aspecto desgastado y descolorido."],
+    ["Lavados","Capas delgadas y acuosas de pintura para agregar suciedad u oscurecer grietas."],
+    ["Calor y sol","Para tela o papel: el sol desvanece el color y el calor amarillea."],
+    ["Envejecimiento químico","Para metal: vinagre, sal o ciertas pinturas crean pátina u óxido."],
+    ["Consejos de diseño","Busca referencias · Explora el brief · Conoce tus materiales · Aprende modelado 3D."],
+    ["Props especiales","Rompibles (vidrio de azúcar) · Insonoros · Animales · Comestibles."]
+  ],
+  qs:[
+    ["¿Qué hace un diseñador de accesorios (props)?",["Conceptualiza y diseña accesorios para cine, animación, TV y videojuegos","Solo compra objetos en tiendas","Dirige a los actores","Edita la película"],"Colabora con otros departamentos para entender el estilo visual."],
+    ["¿A quién entrega el diseñador de accesorios sus dibujos y especificaciones?",["A modeladores 3D, animadores y otros miembros de producción","Al público","Al sonidista","Al distribuidor"],"Sus dibujos detallados permiten fabricar o modelar el accesorio."],
+    ["¿Cuál NO es una habilidad clave del diseñador de accesorios?",["Vender boletos en taquilla","Atención al detalle","Pensamiento creativo","Conocer Photoshop, Illustrator y modelado 3D"],"Las 5: habilidad artística, pensamiento creativo, atención al detalle, conocimientos técnicos y colaboración."],
+    ["¿Con qué inicia el proceso de diseño de utilería en el cine?",["Análisis de guiones (desglose en preproducción)","Construcción","Gestión presupuestaria","Posproducción"],"Se identifican todos los casos en que se requiere un accesorio."],
+    ["Para utilerías mecánicas complejas, el fabricante podría necesitar habilidades de…",["Ingeniería","Actuación","Maquillaje","Guionismo"],"Además de carpintería, metalistería, costura y pintura."],
+    ["Durante el rodaje, el artista de utilería se encarga de…",["Ajustes y reparaciones para que cada pieza siga funcional y consistente","Escribir diálogos","Elegir la música","Vender la utilería"],"Mantiene la continuidad de cada pieza."],
+    ["Al terminar la filmación, ¿qué responsabilidad tiene el fabricante de utilería?",["Almacenar o desechar adecuadamente los accesorios","Destruir todo sin control","Regalar la utilería a los actores","Ninguna"],"Así todo queda en orden para uso futuro."],
+    ["Lija, cepillos de alambre y un martillo viejo se usan en la técnica de…",["Angustia física","Envejecimiento químico","Calor y sol","Lavados"],"El objetivo es que se vea viejo, desgastado y realista."],
+    ["Aplicar poca pintura en el pincel y pasarla ligeramente para un aspecto desgastado es…",["Pincel seco (cepillado en seco)","Lavado","Pátina química","Aerografía"],"Da un aspecto desgastado y descolorido."],
+    ["Los “lavados” son…",["Capas delgadas y acuosas de pintura para agregar suciedad u oscurecer grietas","Lavar el accesorio con jabón","Sumergir el metal en vinagre","Secar la tela al sol"],"Es una de las técnicas de pintura para envejecer."],
+    ["Dejar una tela al sol y aplicarle calor sirve para…",["Desvanecer el color y amarillear la pieza","Hacerla más resistente","Cambiarla de material","Volverla brillante"],"Funciona en accesorios de tela o papel."],
+    ["Vinagre y sal sobre un accesorio de metal producen…",["Pátina u óxido (envejecimiento químico)","Brillo nuevo","Un cambio de forma","Aislamiento de sonido"],"Algunas pinturas también dan aspecto envejecido al metal."],
+    ["“Explora el brief” significa…",["Proponer más de una idea para el mismo resumen de características","Leer solo la primera página del guion","Copiar la idea del director","Elegir el material más barato"],"Es uno de los consejos para el diseño de utilería."],
+    ["¿Por qué conviene aprender modelado 3D para utilería?",["Para ver cómo se verá el diseño desde distintas perspectivas antes de fabricarlo","Para no tener que dibujar nunca","Para imprimir el guion","Para animar al actor"],"Viene después de bocetar o ilustrar el diseño."],
+    ["Los props rompibles suelen hacerse de…",["Vidrio de azúcar","Vidrio templado","Acero","Cerámica real"],"Otros tipos especiales: props insonoros, animales y comestibles."],
+    ["¿Cuál NO es un tipo especial de utilería de cine visto en clase?",["Props magnéticos","Props insonoros","Props comestibles","Props animales"],"Los vistos: rompibles, insonoros, animales y comestibles."]
+  ],
+  match:[{ title:"Técnicas de envejecimiento", pairs:[["Angustia física","Lija, cepillo de alambre o martillo"],["Pincel seco","Poca pintura aplicada ligeramente"],["Lavados","Capas acuosas que agregan suciedad"],["Calor y sol","Desvanece y amarillea tela o papel"],["Químico","Vinagre y sal crean óxido en metal"]]}],
+  order:[{ title:"Proceso de diseño de utilería en cine", steps:["Análisis de guiones","Diseño y boceto","Creación de accesorios","Ajustes y reparaciones en el set","Gestión presupuestaria","Responsabilidades de posproducción"]}]
+}
+];
+
+/* índices derivados */
+const TMAP = Object.fromEntries(TOPICS.map(t=>[t.id,t]));
+const ALLQ = TOPICS.flatMap(t => t.qs.map((q,i)=>({ id:t.id+"-"+i, t:t.id, u:t.u, q:q[0], o:q[1], ans:q[1][0], e:q[2] })));
+const QMAP = Object.fromEntries(ALLQ.map(q=>[q.id,q]));
+const MATCHES = TOPICS.flatMap(t => (t.match||[]).map((m,i)=>({ id:t.id+"-m"+i, t:t.id, u:t.u, title:m.title, pairs:m.pairs })));
+const ORDERS = TOPICS.flatMap(t => (t.order||[]).map((o,i)=>({ id:t.id+"-o"+i, t:t.id, u:t.u, title:o.title, steps:o.steps })));
+const ALLCARDS = TOPICS.flatMap(t => t.cards.map((c,i)=>({ id:t.id+"-c"+i, t:t.id })));
+
+const LEVELS = [
+  { n:"Figurante", x:0 }, { n:"Tramoyista", x:150 }, { n:"Utilero/a", x:400 },
+  { n:"Vestuarista", x:750 }, { n:"Escenógrafo/a", x:1200 }, { n:"Diseñador/a de producción", x:1800 }
+];
+const BADGES = [
+  { id:"primer", n:"Primer ensayo", d:"Terminaste tu primera ronda de preguntas." },
+  { id:"perfecta", n:"Función perfecta", d:"Contestaste bien todas las preguntas de una ronda." },
+  { id:"racha3", n:"Tres funciones seguidas", d:"Estudiaste 3 días seguidos." },
+  { id:"racha7", n:"Temporada completa", d:"Estudiaste 7 días seguidos." },
+  { id:"fichas", n:"Memoria de utilero", d:"Marcaste 30 fichas como dominadas." },
+  { id:"relaciona", n:"Buen ojo", d:"Completaste 3 ejercicios de Relaciona." },
+  { id:"ordena", n:"Jefe/a de escena", d:"Ordenaste 3 procesos sin errores al primer intento." },
+  { id:"uv", n:"Maestría en vestuario", d:"Dominas el 80% de la Unidad I." },
+  { id:"ue", n:"Maestría en escenografía", d:"Dominas el 80% de la Unidad II." },
+  { id:"uu", n:"Maestría en utilería", d:"Dominas el 80% de la Unidad III." },
+  { id:"sim", n:"Ensayo general", d:"Terminaste un simulacro de examen." },
+  { id:"sim8", n:"Ovación de pie", d:"Sacaste 80% o más en un simulacro." }
+];
+
+/* =====================================================================
+   ESTADO GUARDADO (en este navegador)
+   ===================================================================== */
+const LS_KEY = "tras-bambalinas-dvue-v1";
+const FS_STEPS = ["100%","112.5%","125%","137.5%","150%"];
+function defState(){ return { v:1, name:"", nameSkip:false, xp:0, q:{}, cards:{}, streak:{ n:0, last:null, best:0 }, days:{}, badges:{}, sims:[],
+  stats:{ rounds:0, matches:0, orders:0 }, last:null, settings:{ fs:1, theme:"auto", hc:false, sp:false, rm:false } }; }
+let storageOK = true;
+let lastSaved = null;
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ const d = JSON.parse(raw); const base = defState();
+      return Object.assign(base, d, { settings:Object.assign(base.settings, d.settings||{}), stats:Object.assign(base.stats, d.stats||{}), streak:Object.assign(base.streak, d.streak||{}) }); }
+  }catch(e){ storageOK = false; }
+  return defState();
+}
+let S = load();
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); storageOK = true; lastSaved = new Date(); }
+  catch(e){ storageOK = false; }
+  paintSave();
+}
+function paintSave(){
+  const el = document.getElementById("save");
+  if(!storageOK){ el.className = "save is-bad"; el.innerHTML = ico("alert",18)+"<span>Tu navegador no deja guardar. Usa el código de respaldo.</span>"; el.title="No se pudo guardar"; return; }
+  el.className = "save";
+  el.innerHTML = ico("check",18)+"<span>"+(lastSaved ? "Guardado "+lastSaved.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"}) : "Avance guardado en este dispositivo")+"</span>";
+  el.title = "Tu avance se guarda solo en este navegador";
+}
+
+/* =====================================================================
+   UTILIDADES
+   ===================================================================== */
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function pad(n){ return String(n).padStart(2,"0"); }
+function today(d=new Date()){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function dayDiff(a,b){ return Math.round((new Date(b+"T12:00:00") - new Date(a+"T12:00:00"))/864e5); }
+function streakNow(){ if(!S.streak.last) return 0; const d = dayDiff(S.streak.last, today()); return d<=1 ? S.streak.n : 0; }
+function levelOf(xp){ let i=0; LEVELS.forEach((l,k)=>{ if(xp>=l.x) i=k; }); return i; }
+function topicMastery(tid){ const qs = TMAP[tid].qs; let ok=0; qs.forEach((_,i)=>{ const r=S.q[tid+"-"+i]; if(r && r.last) ok++; }); return { ok, n:qs.length, p: Math.round(ok/qs.length*100) }; }
+function unitMastery(u){ let ok=0,n=0; TOPICS.filter(t=>t.u===u).forEach(t=>{ const m=topicMastery(t.id); ok+=m.ok; n+=m.n; }); return { ok, n, p: n? Math.round(ok/n*100):0 }; }
+function wrongIds(){ return Object.keys(S.q).filter(id=>S.q[id].last===false && QMAP[id]); }
+function cardsKnown(tid){ return TMAP[tid].cards.filter((_,i)=>S.cards[tid+"-c"+i]==="k").length; }
+function totalKnownCards(){ return Object.values(S.cards).filter(v=>v==="k").length; }
+
+const ICONS = {
+  hanger:'<path d="M12 7.5a2.2 2.2 0 1 1 2.2 2.2c-1.1.3-2.2 1-2.2 2.2"/><path d="M12 11.9 3.2 17.7c-.9.6-.5 1.8.6 1.8h16.4c1.1 0 1.5-1.2.6-1.8L12 11.9"/>',
+  stage:'<path d="M2 3.5h20"/><path d="M3.5 3.5V20"/><path d="M20.5 3.5V20"/><path d="M3.5 3.5c1.2 5.5 3.5 8.2 6.5 8.7"/><path d="M20.5 3.5c-1.2 5.5-3.5 8.2-6.5 8.7"/><path d="M2 20h20"/><path d="M8 16.5h8"/>',
+  goblet:'<path d="M7 3h10c0 5.5-2.2 8.5-5 8.5S7 8.5 7 3Z"/><path d="M12 11.5V18"/><path d="M8 21h8"/><path d="M8.2 6.5h7.6"/>',
+  check:'<path d="m4.5 12.5 4.8 4.8L19.5 7"/>',
+  x:'<path d="M6 6l12 12"/><path d="M18 6 6 18"/>',
+  up:'<path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/>',
+  down:'<path d="M12 5v14"/><path d="m5.5 12.5 6.5 6.5 6.5-6.5"/>',
+  flame:'<path d="M12 21.5a6.5 6.5 0 0 0 6.5-6.5c0-4.6-3.6-6.8-4.5-11.5-1.6 1.4-2.6 3.7-2.6 5.6-1-.6-1.8-1.7-2-2.8C7.5 8.2 5.5 10.6 5.5 15a6.5 6.5 0 0 0 6.5 6.5Z"/>',
+  star:'<path d="m12 3.2 2.7 5.6 6.1.8-4.5 4.3 1.1 6.1L12 17.1 6.6 20l1.1-6.1-4.5-4.3 6.1-.8z"/>',
+  home:'<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>',
+  cards:'<rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v13"/>',
+  target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  clip:'<rect x="5" y="4" width="14" height="17.5" rx="2"/><path d="M9 4V2.8h6V4"/><path d="M8.5 10h7"/><path d="M8.5 14h7"/><path d="M8.5 18h4"/>',
+  chart:'<path d="M4 20V4"/><path d="M4 20h16"/><path d="M8 16v-4"/><path d="M12 16V8"/><path d="M16 16v-6"/>',
+  link:'<circle cx="6" cy="7" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="M8.5 7H12a3 3 0 0 1 3 3v4a3 3 0 0 0 3 3"/><circle cx="18" cy="7" r="2.5"/><path d="M15.5 7H12"/>',
+  list:'<path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="M4 5.5h1.5v1.5"/><path d="M4 11.5h2l-2 2h2"/><path d="M4 17h2v2H4"/>',
+  redo:'<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/>',
+  bolt:'<path d="M13 2.5 4.5 13.5H12l-1 8 8.5-11H12z"/>',
+  medal:'<circle cx="12" cy="14.5" r="5.5"/><path d="m8.5 9.8-3-6.3h4.8L12 7"/><path d="m15.5 9.8 3-6.3h-4.8"/>',
+  alert:'<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3h.01"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  arrowL:'<path d="M19 12H5"/><path d="m11.5 5.5-6.5 6.5 6.5 6.5"/>',
+  arrowR:'<path d="M5 12h14"/><path d="m12.5 5.5 6.5 6.5-6.5 6.5"/>',
+  flip:'<path d="M4 9a8 8 0 0 1 14-3l2 2"/><path d="M20 4v4h-4"/><path d="M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M4 20v-4h4"/>'
+};
+function ico(name, s=22){ return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[name]||"")+'</svg>'; }
+function unitChip(u){ return '<span class="chip '+u+'">'+ico(UNITS[u].icon,16)+UNITS[u].n+'</span>'; }
+
+function announce(msg){ const l=document.getElementById("live"); l.textContent=""; setTimeout(()=>{ l.textContent=msg; },40); }
+let toastTimer=null;
+function toast(msg, icon="star"){ const t=document.getElementById("toast"); t.innerHTML=ico(icon,20)+"<span>"+esc(msg)+"</span>"; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{ t.hidden=true; },3800); }
+
+/* actividad diaria y racha */
+function sessionStart(){
+  const t = today();
+  S.days[t] = (S.days[t]||0)+1;
+  if(S.streak.last !== t){
+    S.streak.n = (S.streak.last && dayDiff(S.streak.last,t)===1) ? S.streak.n+1 : 1;
+    S.streak.last = t; S.streak.best = Math.max(S.streak.best||0, S.streak.n);
+  }
+}
+function gain(n){
+  const before = levelOf(S.xp); S.xp += n; if(run) run.xp = (run.xp||0)+n;
+  const after = levelOf(S.xp);
+  if(after>before) toast("¡Subiste de nivel! Ahora eres "+LEVELS[after].n, "star");
+}
+function recordAnswer(qid, ok){
+  const r = S.q[qid] || { ok:0, ko:0 };
+  if(ok){ gain(r.ok ? 5 : 10); r.ok++; } else { r.ko++; }
+  r.last = ok; r.t = Date.now(); S.q[qid] = r;
+}
+function checkBadges(){
+  const have = S.badges, got = [];
+  const give = id => { if(!have[id]){ have[id] = today(); got.push(id); } };
+  if(S.stats.rounds>=1) give("primer");
+  if(S.stats.perfect) give("perfecta");
+  if((S.streak.best||0)>=3) give("racha3");
+  if((S.streak.best||0)>=7) give("racha7");
+  if(totalKnownCards()>=30) give("fichas");
+  if(S.stats.matches>=3) give("relaciona");
+  if(S.stats.orders>=3) give("ordena");
+  ["v","e","u"].forEach(u=>{ if(unitMastery(u).p>=80) give("u"+u); });
+  if(S.sims.length) give("sim");
+  if(S.sims.some(s=>s.s/s.n>=.8)) give("sim8");
+  if(got.length){ const b = BADGES.find(x=>x.id===got[0]); setTimeout(()=>toast("Insignia desbloqueada: "+b.n, "medal"), 500); }
+}
+
+/* =====================================================================
+   NAVEGACIÓN
+   ===================================================================== */
+const ROUTES = [
+  { id:"inicio", n:"Inicio", icon:"home" },
+  { id:"estudiar", n:"Estudiar", icon:"cards" },
+  { id:"practicar", n:"Practicar", icon:"target" },
+  { id:"simulacro", n:"Simulacro", icon:"clip" },
+  { id:"progreso", n:"Mi avance", icon:"chart" }
+];
+let view = "inicio";
+let run = null;           // actividad en curso (quiz, relaciona, ordena, simulacro)
+const ui = { studyTopic:null, cardIdx:0, flipped:false, scope:"all", simTimer:false, confirmReset:false, confirmSubmit:false, importMsg:"" };
+let focusAfter = null;
+
+function paintTabs(){
+  document.getElementById("tabs").innerHTML = ROUTES.map(r=>
+    '<li><a href="#'+r.id+'"'+(r.id===view?' aria-current="page"':'')+'>'+ico(r.icon,22)+'<span>'+r.n+'</span></a></li>').join("");
+}
+function route(){
+  const h = location.hash.replace("#","");
+  const next = ROUTES.some(r=>r.id===h) ? h : "inicio";
+  if(next!==view){ run = null; ui.confirmSubmit=false; ui.confirmReset=false; }
+  view = next; focusAfter = "h1"; render();
+}
+function go(id){ if(location.hash==="#"+id){ route(); } else { location.hash = id; } }
+
+function render(){
+  paintTabs();
+  const v = document.getElementById("view");
+  let html = "";
+  if(run){
+    html = run.type==="quiz" ? (run.finished ? vQuizResults() : vQuiz()) : run.type==="match" ? vMatch() : run.type==="order" ? vOrder() : run.type==="sim" ? vSim() : "";
+  } else {
+    html = view==="inicio" ? vHome() : view==="estudiar" ? vStudy() : view==="practicar" ? vPractice() : view==="simulacro" ? vSimIntro() : vProgress();
+  }
+  v.innerHTML = html;
+  if(focusAfter){
+    const el = focusAfter==="h1" ? v.querySelector("h1, h2") : v.querySelector(focusAfter);
+    if(el){ if(!el.hasAttribute("tabindex") && !/^(BUTTON|A|INPUT|TEXTAREA)$/.test(el.tagName)) el.setAttribute("tabindex","-1"); el.focus({ preventScroll:false }); }
+    focusAfter = null;
+  }
+}
+
+/* =====================================================================
+   VISTA: INICIO
+   ===================================================================== */
+function vHome(){
+  const lv = levelOf(S.xp), cur = LEVELS[lv], nxt = LEVELS[lv+1];
+  const pct = nxt ? Math.round((S.xp-cur.x)/(nxt.x-cur.x)*100) : 100;
+  const st = streakNow(), td = S.days[today()]||0, wrong = wrongIds().length;
+  const nm = S.name ? esc(S.name) : "";
+  let h = '<div class="stack">';
+  h += '<section class="hero" aria-labelledby="heroT"><div class="bulbs" aria-hidden="true"></div>'+
+    '<p class="eyebrow"><span class="lvl">Nivel práctica</span> Examen de Diseño de Vestuario, Utilería y Escenografía</p>'+
+    '<h1 id="heroT">'+(nm ? "¡Hola, "+nm+"! Hoy toca ensayo." : "¡Bienvenida, bienvenido! Hoy toca ensayo.")+'</h1>'+
+    '<p class="lead">Estudia en sesiones cortas cuando tengas un rato: en el camión, entre clases o antes de dormir. Tu avance se guarda solo. El examen oficial será en Socrative; aquí practicas con el mismo tipo de preguntas de opción múltiple.</p>'+
+    '<div class="hero-stats">'+
+      '<div class="hstat"><div class="k">Nivel</div><div class="v">'+ico("star",20)+esc(cur.n)+'</div><div class="bar" role="progressbar" aria-label="Avance al siguiente nivel" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pct+'%"></i></div><div class="k num" style="margin-top:4px">'+S.xp+' XP'+(nxt?' · faltan '+(nxt.x-S.xp)+' para '+esc(nxt.n):'')+'</div></div>'+
+      '<div class="hstat"><div class="k">Racha</div><div class="v num">'+ico("flame",20)+st+' '+(st===1?"día":"días")+'</div><div class="k">'+(st? "¡No la rompas!" : "Empieza hoy tu racha")+'</div></div>'+
+      '<div class="hstat"><div class="k">Hoy</div><div class="v num">'+ico("clock",20)+td+' '+(td===1?"sesión":"sesiones")+'</div><div class="k">Varias sesiones cortas rinden más</div></div>'+
+    '</div>'+
+    '<div class="hero-actions"><button class="btn primary big" data-act="quick">'+ico("bolt")+'Reto rápido · 5 preguntas</button>'+
+    (wrong ? '<button class="btn big" data-act="startReview">'+ico("redo")+'Repasar mis errores ('+wrong+')</button>' : '<a class="btn big" href="#estudiar">'+ico("cards")+'Repasar fichas</a>')+'</div>'+
+  '</section>';
+
+  if(!S.name && !S.nameSkip){
+    h += '<form class="panel row" id="nameForm" aria-labelledby="nameL"><label id="nameL" for="nameIn" style="font-weight:700;flex:1 1 100%">¿Cómo te gusta que te digan?</label>'+
+      '<input type="text" id="nameIn" maxlength="30" autocomplete="nickname" placeholder="Tu nombre o apodo"><button class="btn primary" type="submit">Guardar</button><button class="btn ghost" type="button" data-act="skipName">Ahora no</button></form>';
+  }
+  if(S.last && TMAP[S.last]){
+    const t = TMAP[S.last];
+    h += '<section class="panel row" aria-label="Continuar"><div style="flex:1 1 240px;min-width:0"><p class="eyebrow">Continúa donde te quedaste</p><p style="font-weight:700;font-size:1.1rem">'+esc(t.n)+'</p></div>'+
+      '<button class="btn" data-act="study" data-t="'+t.id+'">'+ico("cards")+'Fichas</button><button class="btn primary" data-act="topicQuiz" data-t="'+t.id+'">'+ico("target")+'Practicar</button></section>';
+  }
+  h += '<section class="stack" aria-labelledby="mapT"><div><h2 class="sec" id="mapT">Tu mapa del curso</h2><p class="lead">Cada barra muestra cuántas preguntas del tema contestaste bien la última vez.</p></div><div class="units">';
+  ["v","e","u"].forEach(u=>{
+    const um = unitMastery(u);
+    h += '<article class="unit '+u+'"><div class="unit-head">'+ico(UNITS[u].icon,30)+'<div><p class="eyebrow">'+UNITS[u].u+'</p><h3>'+UNITS[u].n+'</h3></div><span class="pct num" aria-label="Dominio de la unidad">'+um.p+'%</span></div><ul class="topics">';
+    TOPICS.filter(t=>t.u===u).forEach(t=>{
+      const m = topicMastery(t.id);
+      h += '<li class="topic-row"><div class="tname">'+esc(t.n)+'<span class="num">'+m.ok+'/'+m.n+'</span></div>'+
+        '<div class="bar '+u+'" role="progressbar" aria-label="Dominio de '+esc(t.n)+'" aria-valuenow="'+m.p+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+m.p+'%"></i></div>'+
+        '<div class="row"><button class="btn" data-act="study" data-t="'+t.id+'">'+ico("cards",18)+'Estudiar</button><button class="btn" data-act="topicQuiz" data-t="'+t.id+'">'+ico("target",18)+'Practicar</button></div></li>';
+    });
+    h += '</ul></article>';
+  });
+  h += '</div></section></div>';
+  return h;
+}
+
+/* =====================================================================
+   VISTA: ESTUDIAR (fichas)
+   ===================================================================== */
+function vStudy(){
+  if(!ui.studyTopic){
+    let h = '<div class="stack"><div><h1 class="view-title">Estudiar</h1><p class="lead">Elige un tema. Primero lee “Lo esencial” y luego repasa las fichas: piensa la respuesta antes de voltearla.</p></div>';
+    ["v","e","u"].forEach(u=>{
+      h += '<section class="stack" aria-label="'+UNITS[u].u+'"><h2 class="sec">'+UNITS[u].u+' · '+UNITS[u].n+'</h2><div class="grid">';
+      TOPICS.filter(t=>t.u===u).forEach(t=>{
+        const k = cardsKnown(t.id);
+        h += '<button class="pick '+u+'" data-act="study" data-t="'+t.id+'"><span class="ico">'+ico(UNITS[u].icon,26)+'</span><h3>'+esc(t.n)+'</h3><p>'+t.cards.length+' fichas · '+k+' dominadas</p><p class="src">'+esc(t.src)+'</p></button>';
+      });
+      h += '</div></section>';
+    });
+    return h+'</div>';
+  }
+  const t = TMAP[ui.studyTopic], n = t.cards.length, i = ui.cardIdx, c = t.cards[i], id = t.id+"-c"+i;
+  const known = cardsKnown(t.id);
+  let h = '<div class="stack"><button class="btn ghost back" data-act="backTopics">'+ico("arrowL",18)+'Todos los temas</button>'+
+    '<div class="row">'+unitChip(t.u)+'<span class="src">'+esc(t.src)+'</span></div><h1 class="view-title">'+esc(t.n)+'</h1>'+
+    '<details class="essentials" '+(i===0&&!ui.flipped?'open':'')+'><summary style="cursor:pointer;font-weight:700;font-size:1.1rem">Lo esencial del tema</summary><ul>'+t.key.map(k=>'<li>'+esc(k)+'</li>').join("")+'</ul></details>'+
+    '<section class="deck" aria-label="Fichas de estudio">'+
+      '<div class="deck-top"><span class="num">Ficha '+(i+1)+' de '+n+'</span><span class="num">'+known+' de '+n+' dominadas</span></div>'+
+      '<div class="dots" aria-hidden="true">'+t.cards.map((_,k)=>'<i class="'+(S.cards[t.id+"-c"+k]==="k"?"k ":"")+(k===i?"cur":"")+'"></i>').join("")+'</div>'+
+      '<button class="fcard '+(ui.flipped?"is-back ":"")+(ui.anim?"pop":"")+'" data-act="flip" id="fcard" aria-label="'+(ui.flipped?"Ficha volteada. Pulsa para ver solo el concepto":"Pulsa para voltear la ficha y ver la respuesta")+'">'+
+        '<span class="fc-label">'+(ui.flipped?"Respuesta":"Concepto · ¿qué recuerdas?")+'</span>'+
+        '<span class="fc-front">'+esc(c[0])+'</span>'+
+        (ui.flipped?'<span class="fc-back">'+esc(c[1])+'</span>':'')+
+        '<span class="fc-hint">'+ico("flip",16)+(ui.flipped?"Volver":"Voltear")+'</span>'+
+      '</button>';
+  if(!ui.flipped){
+    h += '<div class="deck-actions"><button class="btn" data-act="prevCard" '+(i===0?"disabled":"")+'>'+ico("arrowL",18)+'Anterior</button>'+
+      '<button class="btn primary flip" data-act="flip">'+ico("flip",18)+'Voltear ficha</button>'+
+      '<button class="btn" data-act="nextCard" '+(i===n-1?"disabled":"")+'>Siguiente'+ico("arrowR",18)+'</button></div>';
+  } else {
+    h += '<div class="deck-actions two"><button class="btn" data-act="again" id="btnAgain">'+ico("redo",18)+'Repasar otra vez</button>'+
+      '<button class="btn ok" data-act="know" id="btnKnow">'+ico("check",18)+'¡Me la sé!</button></div>';
+  }
+  h += '</section><div class="panel row"><p style="flex:1 1 240px">¿Ya repasaste? Comprueba lo que sabes de este tema.</p><button class="btn primary" data-act="topicQuiz" data-t="'+t.id+'">'+ico("target",18)+'Practicar este tema</button></div></div>';
+  return h;
+}
+
+/* =====================================================================
+   VISTA: PRACTICAR (selección)
+   ===================================================================== */
+function scopeLabel(s){ return s==="all" ? "Todo el curso" : UNITS[s] ? UNITS[s].u+" · "+UNITS[s].n : TMAP[s].n; }
+function inScope(item, s){ return s==="all" || item.u===s || item.t===s; }
+function vPractice(){
+  const s = ui.scope, wrong = wrongIds().length;
+  const nq = ALLQ.filter(q=>inScope(q,s)).length, nm = MATCHES.filter(m=>inScope(m,s)).length, no = ORDERS.filter(o=>inScope(o,s)).length;
+  let h = '<div class="stack"><div><h1 class="view-title">Practicar</h1><p class="lead">Elige qué temas quieres repasar y luego el tipo de ejercicio.</p></div>';
+  h += '<section class="panel stack" aria-labelledby="scT"><h2 class="sec" id="scT">1. ¿Qué quieres repasar?</h2><div class="scope" role="group" aria-label="Temas">';
+  const opts = [["all","Todo el curso"],["v","Unidad I · Vestuario"],["e","Unidad II · Escenografía"],["u","Unidad III · Utilería"]].concat(TOPICS.map(t=>[t.id,t.n]));
+  h += opts.map(o=>'<button data-act="scope" data-s="'+o[0]+'" aria-pressed="'+(s===o[0])+'">'+esc(o[1])+'</button>').join("");
+  h += '</div></section>';
+  h += '<section class="stack" aria-labelledby="mdT"><h2 class="sec" id="mdT">2. Elige un ejercicio</h2><div class="grid">'+
+    '<button class="pick" data-act="startQuiz"><span class="ico">'+ico("target",26)+'</span><h3>Preguntas</h3><p>10 preguntas de opción múltiple con explicación inmediata.</p><p class="src num">'+nq+' preguntas disponibles</p></button>'+
+    '<button class="pick" data-act="startMatch" '+(nm?"":"disabled")+'><span class="ico">'+ico("link",26)+'</span><h3>Relaciona</h3><p>Une cada concepto con su definición.</p><p class="src num">'+(nm? nm+' ejercicios' : 'Sin ejercicios en este tema')+'</p></button>'+
+    '<button class="pick" data-act="startOrder" '+(no?"":"disabled")+'><span class="ico">'+ico("list",26)+'</span><h3>Ordena el proceso</h3><p>Acomoda los pasos de un proceso en el orden correcto.</p><p class="src num">'+(no? no+' procesos' : 'Este tema no tiene procesos; elige otro')+'</p></button>'+
+    '<button class="pick" data-act="startReview" '+(wrong?"":"disabled")+'><span class="ico">'+ico("redo",26)+'</span><h3>Repasa tus errores</h3><p>Solo las preguntas que fallaste la última vez.</p><p class="src num">'+(wrong? wrong+' pendientes' : '¡No tienes errores pendientes!')+'</p></button>'+
+  '</div></section></div>';
+  return h;
+}
+
+/* ---------- QUIZ ---------- */
+function pickQuick(){
+  const wrong = shuffle(wrongIds()), unseen = shuffle(ALLQ.filter(q=>!S.q[q.id]).map(q=>q.id)), rest = shuffle(ALLQ.map(q=>q.id));
+  const out = []; [wrong.slice(0,2), unseen, rest].forEach(arr=>arr.forEach(id=>{ if(out.length<5 && !out.includes(id)) out.push(id); }));
+  return out;
+}
+function startQuiz(ids, label){
+  if(!ids.length) return;
+  sessionStart();
+  run = { type:"quiz", label, ids, i:0, picked:null, opts:shuffle(QMAP[ids[0]].o), res:[], xp:0 };
+  save(); focusAfter = "h2"; render();
+}
+function pickForScope(s, n){
+  const pool = ALLQ.filter(q=>inScope(q,s));
+  const unseen = shuffle(pool.filter(q=>!S.q[q.id] || S.q[q.id].last===false)).map(q=>q.id);
+  const seen = shuffle(pool.filter(q=>S.q[q.id] && S.q[q.id].last)).map(q=>q.id);
+  return unseen.concat(seen).slice(0,n);
+}
+function vQuiz(){
+  const q = QMAP[run.ids[run.i]], n = run.ids.length, answered = run.picked!==null;
+  const pct = Math.round((run.i + (answered?1:0))/n*100);
+  let h = '<div class="stack"><div class="qhead"><button class="btn ghost" data-act="exitRun">'+ico("arrowL",18)+'Salir</button>'+
+    '<div class="bar" role="progressbar" aria-label="Avance de la ronda" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pct+'%"></i></div><span class="num" style="font-weight:700">'+(run.i+1)+' / '+n+'</span></div>';
+  h += '<article class="qcard"><div class="row">'+unitChip(q.u)+'<span class="src">'+esc(TMAP[q.t].n)+'</span></div>'+
+    '<h2 id="qtitle">'+esc(q.q)+'</h2><ul class="opts" aria-labelledby="qtitle">';
+  run.opts.forEach((o,k)=>{
+    let cls = "opt", mark = "";
+    if(answered){
+      if(o===q.ans){ cls+=" is-correct"; mark='<span class="mark">'+ico("check",18)+'Correcta</span>'; }
+      else if(k===run.picked){ cls+=" is-wrong"; mark='<span class="mark">'+ico("x",18)+'Tu respuesta</span>'; }
+      else cls+=" is-dim";
+    }
+    h += '<li><button class="'+cls+'" data-act="pick" data-i="'+k+'" '+(answered?"disabled":"")+'><span class="key">'+"ABCD"[k]+'</span><span class="txt">'+esc(o)+'</span>'+mark+'</button></li>';
+  });
+  h += '</ul>';
+  if(answered){
+    const ok = run.opts[run.picked]===q.ans;
+    h += '<div class="feedback '+(ok?"ok":"bad")+'"><b class="t">'+ico(ok?"check":"x",20)+(ok?"¡Correcto!":"Casi. La correcta es: "+esc(q.ans))+'</b><p>'+esc(q.e)+'</p><p class="src">Fuente: '+esc(TMAP[q.t].src)+'</p></div>'+
+      '<button class="btn primary big" data-act="next" id="btnNext">'+(run.i<n-1?"Siguiente pregunta":"Ver resultados")+ico("arrowR",18)+'</button>';
+  } else {
+    h += '<p class="src">Atajo: teclas 1 a 4 o A a D.</p>';
+  }
+  return h+'</article></div>';
+}
+function vQuizResults(){
+  const n = run.ids.length, ok = run.res.filter(r=>r.ok).length, p = Math.round(ok/n*100);
+  const msg = p>=90 ? "¡Ovación de pie!" : p>=70 ? "¡Muy buena función!" : p>=50 ? "Buen ensayo. Repasa los errores y vuelve a intentarlo." : "Todo gran estreno empieza con ensayos. Repasa las fichas y vuelve a intentarlo.";
+  const missed = run.res.filter(r=>!r.ok);
+  let h = '<div class="stack"><h1 class="view-title">Resultados · '+esc(run.label)+'</h1>'+
+    '<section class="panel score"><div class="ring" style="--p:'+p+'"><div><span class="num">'+ok+'/'+n+'</span><small class="num">'+p+'%</small></div></div>'+
+    '<div class="stack" style="gap:6px;flex:1 1 240px;min-width:0"><p style="font-family:var(--font-display);font-weight:800;font-size:1.5rem">'+msg+'</p><p class="lead num">Ganaste '+run.xp+' XP. Tu avance ya quedó guardado.</p></div></section>';
+  if(missed.length){
+    h += '<section class="stack"><h2 class="sec">Para repasar</h2><ul class="missed">'+missed.map(r=>{ const q=QMAP[r.id];
+      return '<li><b>'+esc(q.q)+'</b><span class="yours">'+ico("x",16)+' Respondiste: '+esc(r.pick)+'</span><span class="right">'+ico("check",16)+' Correcta: '+esc(q.ans)+'</span><span class="src">'+esc(q.e)+' · '+esc(TMAP[q.t].src)+'</span></li>'; }).join("")+'</ul></section>';
+  }
+  h += '<div class="row">'+(missed.length?'<button class="btn primary" data-act="retryMissed" id="btnRes">'+ico("redo",18)+'Repetir solo los errores</button>':'')+
+    '<button class="btn '+(missed.length?"":"primary")+'" data-act="again" '+(missed.length?"":'id="btnRes"')+'>'+ico("target",18)+'Otra ronda</button><button class="btn ghost" data-act="exitRun">Volver</button></div></div>';
+  return h;
+}
+
+/* ---------- RELACIONA ---------- */
+function startMatch(){
+  const pool = MATCHES.filter(m=>inScope(m,ui.scope)); if(!pool.length) return;
+  const set = pool[Math.floor(Math.random()*pool.length)];
+  sessionStart();
+  const idx = set.pairs.map((_,i)=>i);
+  run = { type:"match", set, L:shuffle(idx), R:shuffle(idx), selL:null, selR:null, done:[], errors:0, msg:"", bad:null, xp:0 };
+  save(); focusAfter="h1"; render();
+}
+function vMatch(){
+  const s = run.set, n = s.pairs.length, fin = run.done.length===n;
+  let h = '<div class="stack"><div class="qhead"><button class="btn ghost" data-act="exitRun">'+ico("arrowL",18)+'Salir</button>'+
+    '<div class="bar" role="progressbar" aria-label="Pares encontrados" aria-valuenow="'+run.done.length+'" aria-valuemin="0" aria-valuemax="'+n+'"><i style="width:'+Math.round(run.done.length/n*100)+'%"></i></div><span class="num" style="font-weight:700">'+run.done.length+' / '+n+'</span></div>'+
+    '<div class="row">'+unitChip(s.u)+'<span class="src">'+esc(TMAP[s.t].n)+' · '+esc(TMAP[s.t].src)+'</span></div>'+
+    '<h1 class="view-title">Relaciona: '+esc(s.title)+'</h1>';
+  if(fin){
+    h += '<div class="feedback ok"><b class="t">'+ico("check",20)+'¡Completaste todos los pares!</b><p class="num">'+(run.errors? "Tuviste "+run.errors+" "+(run.errors===1?"intento fallido":"intentos fallidos")+"." : "Sin un solo error. ¡Excelente!")+' Ganaste '+run.xp+' XP.</p></div>'+
+      '<div class="row"><button class="btn primary" data-act="startMatch" id="btnRes">'+ico("redo",18)+'Otro ejercicio</button><button class="btn ghost" data-act="exitRun">Volver</button></div>';
+  } else {
+    h += '<p class="lead">Toca un concepto y después la definición que le corresponde. Puedes empezar por cualquiera de las dos columnas.</p>';
+    if(run.msg) h += '<div class="feedback '+(run.bad?"bad":"ok")+'" role="status"><b class="t">'+ico(run.bad?"x":"check",20)+esc(run.msg)+'</b></div>';
+  }
+  h += '<div class="match"><div class="mcol" role="group" aria-label="Conceptos"><p class="eyebrow">Conceptos</p>';
+  run.L.forEach(i=>{ const d = run.done.includes(i);
+    h += '<button class="mitem term '+(d?"done":"")+(run.bad&&run.bad[0]===i?" shake":"")+'" data-act="mL" data-i="'+i+'" aria-pressed="'+(run.selL===i)+'" '+(d?"disabled":"")+'>'+esc(s.pairs[i][0])+(d?'<span class="pairno">'+ico("check",16)+'Unido</span>':'')+'</button>'; });
+  h += '</div><div class="mcol" role="group" aria-label="Definiciones"><p class="eyebrow">Definiciones</p>';
+  run.R.forEach(i=>{ const d = run.done.includes(i);
+    h += '<button class="mitem '+(d?"done":"")+(run.bad&&run.bad[1]===i?" shake":"")+'" data-act="mR" data-i="'+i+'" aria-pressed="'+(run.selR===i)+'" '+(d?"disabled":"")+'>'+esc(s.pairs[i][1])+(d?'<span class="pairno">'+ico("check",16)+esc(s.pairs[i][0])+'</span>':'')+'</button>'; });
+  h += '</div></div></div>';
+  return h;
+}
+function tryMatch(){
+  if(run.selL===null || run.selR===null) return;
+  const s = run.set, L = run.selL, R = run.selR;
+  if(L===R){
+    run.done.push(L); run.msg = "¡Bien! «"+s.pairs[L][0]+"» va con su definición."; run.bad=null;
+    announce(run.msg);
+    if(run.done.length===s.pairs.length){ gain(run.errors===0?25:15); S.stats.matches++; S.last = s.t; checkBadges(); save(); focusAfter="#btnRes"; announce("Completaste todos los pares."); }
+  } else {
+    run.errors++; run.bad=[L,R]; run.msg = "Esa definición no corresponde a «"+s.pairs[L][0]+"». Intenta con otra."; announce(run.msg);
+  }
+  run.selL = null; run.selR = null; render();
+}
+
+/* ---------- ORDENA ---------- */
+function startOrder(){
+  const pool = ORDERS.filter(o=>inScope(o,ui.scope)); if(!pool.length) return;
+  const set = pool[Math.floor(Math.random()*pool.length)];
+  sessionStart();
+  let cur = shuffle(set.steps.map((_,i)=>i)); let guard=0;
+  while(cur.every((v,i)=>v===i) && guard++<10) cur = shuffle(cur);
+  run = { type:"order", set, cur, checked:false, tries:0, solved:false, shown:false, xp:0 };
+  save(); focusAfter="h1"; render();
+}
+function vOrder(){
+  const s = run.set, n = s.steps.length;
+  const good = run.cur.filter((v,i)=>v===i).length;
+  let h = '<div class="stack"><div class="qhead"><button class="btn ghost" data-act="exitRun">'+ico("arrowL",18)+'Salir</button></div>'+
+    '<div class="row">'+unitChip(s.u)+'<span class="src">'+esc(TMAP[s.t].n)+' · '+esc(TMAP[s.t].src)+'</span></div>'+
+    '<h1 class="view-title">Ordena: '+esc(s.title)+'</h1><p class="lead">Usa las flechas para subir o bajar cada paso hasta que queden en orden, del primero al último.</p>';
+  if(run.checked){
+    if(run.solved) h += '<div class="feedback ok" role="status"><b class="t">'+ico("check",20)+(run.shown?'Este es el orden correcto.':'¡Orden perfecto!')+'</b><p class="num">'+(run.shown?'Vuelve a intentarlo con otro proceso.':'Ganaste '+run.xp+' XP.')+'</p></div>';
+    else h += '<div class="feedback bad" role="status"><b class="t">'+ico("x",20)+good+' de '+n+' pasos en su lugar</b><p>Mueve los pasos marcados con ✗ y vuelve a comprobar.</p></div>';
+  }
+  h += '<ol class="olist">';
+  run.cur.forEach((stepIdx,pos)=>{
+    const st = run.checked ? (stepIdx===pos ? "good" : "badpos") : "";
+    const lock = run.solved;
+    h += '<li class="oitem '+st+'"><span class="n num">'+(pos+1)+'</span><span class="txt">'+esc(s.steps[stepIdx])+'</span>'+
+      (run.checked&&!run.solved ? '<span class="st">'+(stepIdx===pos? ico("check",16)+'Bien':ico("x",16)+'Mover')+'</span>' : '')+
+      '<span class="moves"><button data-act="up" data-i="'+pos+'" aria-label="Subir: '+esc(s.steps[stepIdx])+'" '+(pos===0||lock?"disabled":"")+'>'+ico("up",20)+'</button>'+
+      '<button data-act="down" data-i="'+pos+'" aria-label="Bajar: '+esc(s.steps[stepIdx])+'" '+(pos===n-1||lock?"disabled":"")+'>'+ico("down",20)+'</button></span></li>';
+  });
+  h += '</ol><div class="row">';
+  if(run.solved) h += '<button class="btn primary" data-act="startOrder" id="btnRes">'+ico("redo",18)+'Otro proceso</button><button class="btn ghost" data-act="exitRun">Volver</button>';
+  else h += '<button class="btn primary" data-act="check" id="btnCheck">'+ico("check",18)+'Comprobar orden</button>'+(run.tries>=2?'<button class="btn" data-act="solve">Ver solución</button>':'');
+  return h+'</div></div>';
+}
+
+/* ---------- SIMULACRO ---------- */
+function vSimIntro(){
+  const last = S.sims.slice(-3).reverse();
+  let h = '<div class="stack"><div><h1 class="view-title">Simulacro de examen <span class="lvl">Nivel práctica</span></h1><p class="lead">Es un ejercicio de práctica: no cuenta para tu calificación. El examen oficial será en Socrative. 20 preguntas mezcladas de las tres unidades, como en el examen. No verás si acertaste hasta que entregues; puedes moverte entre preguntas y cambiar respuestas.</p></div>'+
+    '<section class="panel stack"><ul style="margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px"><li>Unidad I · Vestuario, Unidad II · Escenografía y Unidad III · Utilería.</li><li>Al final verás tu calificación por unidad y la explicación de cada error.</li><li>Busca un rato de 15 a 20 minutos sin interrupciones.</li></ul>'+
+    '<button class="switch" role="switch" aria-checked="'+ui.simTimer+'" data-act="simTimer"><span><b>Mostrar tiempo transcurrido</b><small>Opcional. No hay límite de tiempo.</small></span><span class="tr" aria-hidden="true"></span></button>'+
+    '<button class="btn primary big" data-act="simStart">'+ico("clip")+'Comenzar simulacro</button></section>';
+  if(last.length){
+    h += '<section class="panel stack"><h2 class="sec">Tus últimos simulacros</h2><ul class="missed">'+last.map(s=>'<li><b class="num">'+s.s+' de '+s.n+' · '+Math.round(s.s/s.n*100)+'%</b><span class="src">'+esc(s.d)+'</span></li>').join("")+'</ul></section>';
+  }
+  return h+'</div>';
+}
+function startSim(){
+  const ids = [];
+  const per = { v:7, e:7, u:6 };
+  ["v","e","u"].forEach(u=>{ shuffle(ALLQ.filter(q=>q.u===u)).slice(0,per[u]).forEach(q=>ids.push(q.id)); });
+  sessionStart();
+  run = { type:"sim", ids:shuffle(ids), opts:{}, ans:{}, i:0, done:false, t0:Date.now(), xp:0 };
+  run.ids.forEach(id=>{ run.opts[id] = shuffle(QMAP[id].o); });
+  save(); focusAfter="h2"; render();
+  if(ui.simTimer) tick();
+}
+let tickT = null;
+function tick(){ clearTimeout(tickT); if(!run || run.type!=="sim" || run.done) return; const el=document.getElementById("simClock"); if(el){ const s=Math.floor((Date.now()-run.t0)/1000); el.textContent=pad(Math.floor(s/60))+":"+pad(s%60); } tickT=setTimeout(tick,1000); }
+function vSim(){
+  if(run.done) return vSimResults();
+  const n = run.ids.length, id = run.ids[run.i], q = QMAP[id], pickedTxt = run.ans[id];
+  const answered = Object.keys(run.ans).length;
+  let h = '<div class="stack"><div class="qhead"><button class="btn ghost" data-act="exitRun">'+ico("arrowL",18)+'Salir</button>'+
+    '<div class="bar" role="progressbar" aria-label="Preguntas contestadas" aria-valuenow="'+answered+'" aria-valuemin="0" aria-valuemax="'+n+'"><i style="width:'+Math.round(answered/n*100)+'%"></i></div>'+
+    '<span class="num" style="font-weight:700">'+answered+' de '+n+' contestadas</span>'+(ui.simTimer?'<span class="chip num">'+ico("clock",16)+'<span id="simClock">00:00</span></span>':'')+'</div>';
+  h += '<nav class="qnav" aria-label="Ir a la pregunta">'+run.ids.map((qid,k)=>'<button data-act="simGo" data-i="'+k+'" class="num '+(run.ans[qid]?"done":"")+'" aria-current="'+(k===run.i)+'" aria-label="Pregunta '+(k+1)+(run.ans[qid]?", contestada":", sin contestar")+'">'+(k+1)+'</button>').join("")+'</nav>';
+  h += '<article class="qcard"><div class="row"><span class="chip num">Pregunta '+(run.i+1)+' de '+n+'</span>'+unitChip(q.u)+'</div><h2 id="qtitle">'+esc(q.q)+'</h2><ul class="opts" aria-labelledby="qtitle">';
+  run.opts[id].forEach((o,k)=>{ const sel = pickedTxt===o;
+    h += '<li><button class="opt '+(sel?"is-picked":"")+'" data-act="simPick" data-i="'+k+'" aria-pressed="'+sel+'"><span class="key">'+"ABCD"[k]+'</span><span class="txt">'+esc(o)+'</span>'+(sel?'<span class="mark">'+ico("check",18)+'Elegida</span>':'')+'</button></li>'; });
+  h += '</ul><div class="row"><button class="btn" data-act="simPrev" '+(run.i===0?"disabled":"")+'>'+ico("arrowL",18)+'Anterior</button>'+
+    (run.i<n-1?'<button class="btn primary" data-act="simNext" id="simNextBtn">Siguiente'+ico("arrowR",18)+'</button>':'')+
+    '<button class="btn '+(run.i===n-1?"primary":"ghost")+'" data-act="simSubmit" style="margin-left:auto">'+ico("clip",18)+'Entregar examen</button></div>';
+  if(ui.confirmSubmit){
+    const left = n-answered;
+    h += '<div class="confirm" role="alertdialog" aria-labelledby="cfT"><b id="cfT">'+(left? "Te faltan "+left+" "+(left===1?"pregunta":"preguntas")+" por contestar. ¿Entregar de todos modos?" : "¿Listo para entregar?")+'</b><p>Las preguntas sin contestar cuentan como incorrectas.</p>'+
+      '<div class="row"><button class="btn primary" data-act="simConfirm" id="btnConfirm">Sí, entregar</button><button class="btn" data-act="simCancel">Seguir contestando</button></div></div>';
+  }
+  return h+'</article></div>';
+}
+function finishSim(){
+  run.done = true; ui.confirmSubmit = false; clearTimeout(tickT);
+  const per = { v:[0,0], e:[0,0], u:[0,0] }; let ok = 0;
+  run.ids.forEach(id=>{ const q=QMAP[id], good = run.ans[id]===q.ans; per[q.u][1]++; if(good){ ok++; per[q.u][0]++; } if(run.ans[id]) recordAnswer(id, good); else { const r=S.q[id]||{ok:0,ko:0}; r.ko++; r.last=false; r.t=Date.now(); S.q[id]=r; } });
+  gain(50);
+  run.score = ok; run.per = per; run.secs = Math.floor((Date.now()-run.t0)/1000);
+  S.sims.push({ d:today(), s:ok, n:run.ids.length, per });
+  checkBadges(); save(); focusAfter="h1"; render();
+}
+function vSimResults(){
+  const n = run.ids.length, p = Math.round(run.score/n*100);
+  const grade = (p/10).toFixed(1);
+  let h = '<div class="stack"><h1 class="view-title">Resultado del simulacro <span class="lvl">Nivel práctica</span></h1>'+
+    '<section class="panel score"><div class="ring" style="--p:'+p+'"><div><span class="num">'+grade+'</span><small>de 10</small></div></div>'+
+    '<div class="stack" style="gap:8px;flex:1 1 260px;min-width:0"><p style="font-family:var(--font-display);font-weight:800;font-size:1.5rem">'+(p>=80?"¡Ovación de pie!":p>=60?"Vas por buen camino.":"Hay que ensayar un poco más.")+'</p>'+
+    '<p class="lead num">'+run.score+' de '+n+' correctas'+(ui.simTimer?' · '+Math.floor(run.secs/60)+' min '+(run.secs%60)+' s':'')+' · +'+run.xp+' XP</p></div></section>';
+  h += '<section class="panel stack"><h2 class="sec">Por unidad</h2><div class="mastery">';
+  ["v","e","u"].forEach(u=>{ const [a,b]=run.per[u]; const pp=b?Math.round(a/b*100):0;
+    h += '<div class="mrow"><span style="font-weight:700">'+UNITS[u].u+' · '+UNITS[u].n+'</span><div class="bar '+u+'" role="progressbar" aria-label="'+UNITS[u].n+'" aria-valuenow="'+pp+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pp+'%"></i></div><span class="pct num">'+a+'/'+b+'</span></div>'; });
+  h += '</div></section>';
+  const missed = run.ids.filter(id=>run.ans[id]!==QMAP[id].ans);
+  if(missed.length){
+    h += '<section class="stack"><h2 class="sec">Revisa tus errores</h2><ul class="missed">'+missed.map(id=>{ const q=QMAP[id];
+      return '<li><b>'+esc(q.q)+'</b><span class="yours">'+ico("x",16)+' '+(run.ans[id]?"Respondiste: "+esc(run.ans[id]):"Sin contestar")+'</span><span class="right">'+ico("check",16)+' Correcta: '+esc(q.ans)+'</span><span class="src">'+esc(q.e)+' · '+esc(TMAP[q.t].src)+'</span></li>'; }).join("")+'</ul></section>';
+  }
+  h += '<div class="row">'+(missed.length?'<button class="btn primary" data-act="startReview">'+ico("redo",18)+'Practicar mis errores</button>':'')+'<button class="btn" data-act="simStart">'+ico("clip",18)+'Otro simulacro</button><button class="btn ghost" data-act="exitRun">Volver</button></div></div>';
+  return h;
+}
+
+/* =====================================================================
+   VISTA: MI AVANCE
+   ===================================================================== */
+function vProgress(){
+  const lv = levelOf(S.xp), mastered = ALLQ.filter(q=>S.q[q.id]&&S.q[q.id].last).length;
+  let h = '<div class="stack"><div><h1 class="view-title">Mi avance</h1><p class="lead">Todo se guarda en este navegador. Si cambias de celular o computadora, usa tu código de respaldo (abajo).</p></div>';
+  h += '<div class="tiles">'+
+    '<div class="tile"><div class="k">Nivel</div><div class="v">'+esc(LEVELS[lv].n)+'</div><div class="s num">'+S.xp+' XP</div></div>'+
+    '<div class="tile"><div class="k">Racha</div><div class="v num">'+streakNow()+'</div><div class="s num">Mejor racha: '+(S.streak.best||0)+' días</div></div>'+
+    '<div class="tile"><div class="k">Preguntas dominadas</div><div class="v num">'+mastered+'</div><div class="s num">de '+ALLQ.length+'</div></div>'+
+    '<div class="tile"><div class="k">Fichas dominadas</div><div class="v num">'+totalKnownCards()+'</div><div class="s num">de '+ALLCARDS.length+'</div></div></div>';
+  h += '<section class="panel stack"><h2 class="sec">Dominio por tema</h2><div class="mastery">';
+  ["v","e","u"].forEach(u=>{
+    h += '<p class="eyebrow" style="margin-top:6px">'+UNITS[u].u+' · '+UNITS[u].n+'</p>';
+    TOPICS.filter(t=>t.u===u).forEach(t=>{ const m=topicMastery(t.id);
+      h += '<div class="mrow"><span>'+esc(t.n)+'</span><div class="bar '+u+'" role="progressbar" aria-label="'+esc(t.n)+'" aria-valuenow="'+m.p+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+m.p+'%"></i></div><span class="pct num">'+m.p+'%</span></div>'; });
+  });
+  h += '</div></section>';
+  // actividad de 14 días
+  h += '<section class="panel stack"><h2 class="sec">Tus últimos 14 días</h2><div class="cal">';
+  const dn = ["D","L","M","M","J","V","S"];
+  for(let k=13;k>=0;k--){ const d=new Date(); d.setDate(d.getDate()-k); const key=today(d), c=S.days[key]||0;
+    h += '<div><i class="'+(c>=3?"l2":c>=1?"l1":"")+' num" aria-label="'+d.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"})+': '+c+' sesiones">'+(c||"")+'</i><span>'+dn[d.getDay()]+'</span></div>'; }
+  h += '</div><p class="src">El número indica cuántas sesiones hiciste ese día.</p></section>';
+  h += '<section class="stack"><h2 class="sec">Insignias</h2><div class="badges">'+BADGES.map(b=>{ const on=!!S.badges[b.id];
+    return '<div class="badge '+(on?"on":"")+'"><span class="medal">'+ico("medal",24)+'</span><div><span class="state">'+(on?"Desbloqueada":"Por ganar")+'</span><b>'+esc(b.n)+'</b><p>'+esc(b.d)+'</p></div></div>'; }).join("")+'</div></section>';
+  h += '<section class="panel stack" aria-labelledby="bkT"><h2 class="sec" id="bkT">Código de respaldo</h2><p>Copia este código y guárdalo (por ejemplo, mándatelo por WhatsApp). En otro dispositivo, pégalo abajo para recuperar tu avance.</p>'+
+    '<label for="codeOut" class="sr-only">Tu código de respaldo</label><textarea id="codeOut" readonly>'+esc(exportCode())+'</textarea>'+
+    '<div class="row"><button class="btn primary" data-act="copyCode">Copiar código</button></div>'+
+    '<label for="codeIn" style="font-weight:700">Recuperar avance desde un código</label><textarea id="codeIn" placeholder="Pega aquí tu código"></textarea>'+
+    '<div class="row"><button class="btn" data-act="importCode">Recuperar avance</button>'+(ui.importMsg?'<span role="status" style="font-weight:700">'+esc(ui.importMsg)+'</span>':'')+'</div></section>';
+  h += '<section class="panel stack"><h2 class="sec">Empezar de cero</h2>';
+  if(ui.confirmReset) h += '<div class="confirm" role="alertdialog" aria-labelledby="rsT"><b id="rsT">¿Seguro? Se borrarán tu XP, racha, insignias y respuestas en este dispositivo.</b><p>Si quieres conservar una copia, primero copia tu código de respaldo.</p><div class="row"><button class="btn primary" data-act="resetYes" id="btnResetYes" style="background:var(--bad);border-color:var(--bad);color:var(--surface)">Sí, borrar mi avance</button><button class="btn" data-act="resetNo">Cancelar</button></div></div>';
+  else h += '<div class="row"><button class="btn" data-act="reset">Borrar mi avance…</button></div>';
+  return h+'</section></div>';
+}
+function exportCode(){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(S)))); }catch(e){ return ""; } }
+
+/* =====================================================================
+   AJUSTES DE LECTURA Y AYUDA
+   ===================================================================== */
+function applySettings(){
+  const r = document.documentElement, s = S.settings;
+  r.style.fontSize = FS_STEPS[s.fs] || "112.5%";
+  if(s.theme==="auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme", s.theme);
+  if(s.hc) r.setAttribute("data-contrast","alto"); else r.removeAttribute("data-contrast");
+  if(s.sp) r.setAttribute("data-spacing","amplio"); else r.removeAttribute("data-spacing");
+  if(s.rm) r.setAttribute("data-motion","reducido"); else r.removeAttribute("data-motion");
+}
+function paintReadPanel(){
+  const s = S.settings, p = document.getElementById("readPanel");
+  const sw = (act, on, t, d) => '<button class="switch" role="switch" aria-checked="'+on+'" data-act="'+act+'"><span><b>'+t+'</b><small>'+d+'</small></span><span class="tr" aria-hidden="true"></span></button>';
+  p.innerHTML = '<h2>Ajustes de lectura</h2>'+
+    '<div class="setting"><span class="lbl" id="fsL">Tamaño de letra</span><div class="seg" role="group" aria-labelledby="fsL">'+
+      ['A−','A','A+','A++','A+++'].map((l,i)=>'<button data-act="fs" data-v="'+i+'" aria-pressed="'+(s.fs===i)+'" aria-label="Tamaño '+(i+1)+' de 5" style="font-size:'+(0.85+i*0.12)+'rem">'+l+'</button>').join("")+'</div></div>'+
+    '<div class="setting"><span class="lbl" id="thL">Tema</span><div class="seg" role="group" aria-labelledby="thL">'+
+      [["auto","Automático"],["light","Claro"],["dark","Oscuro"]].map(o=>'<button data-act="theme" data-v="'+o[0]+'" aria-pressed="'+(s.theme===o[0])+'">'+o[1]+'</button>').join("")+'</div>'+
+      '<small class="src">Con astigmatismo, el modo oscuro de aquí usa letras gris claro para que no “brillen”.</small></div>'+
+    sw("hc", s.hc, "Alto contraste", "Bordes y textos más marcados.")+
+    sw("sp", s.sp, "Texto espaciado", "Más espacio entre letras, palabras y líneas.")+
+    sw("rm", s.rm, "Reducir animaciones", "Quita movimientos y destellos.")+
+    '<button class="btn" data-act="closeRead">Listo</button>';
+}
+function openRead(open){
+  const p = document.getElementById("readPanel"), b = document.getElementById("btnRead");
+  p.hidden = !open; b.setAttribute("aria-expanded", String(open));
+  if(open){ paintReadPanel(); const f=p.querySelector("button"); if(f) f.focus(); } else if(document.activeElement && p.contains(document.activeElement)) b.focus();
+}
+let lastFocus = null;
+function openHelp(){
+  lastFocus = document.activeElement;
+  const o = document.getElementById("overlay");
+  o.innerHTML = '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="hlpT">'+
+    '<h2 id="hlpT">Cómo funciona Tras Bambalinas</h2>'+
+    '<p>Una plataforma para estudiar el examen de Diseño de Vestuario, Utilería y Escenografía con el contenido de las presentaciones de clase (02 a 11).</p>'+
+    '<h3>Qué puedes hacer</h3><ul>'+
+      '<li><b>Estudiar:</b> lee “Lo esencial” de cada tema y repasa las fichas. Marca las que ya te sabes.</li>'+
+      '<li><b>Practicar:</b> preguntas con explicación inmediata, ejercicios para relacionar conceptos y para ordenar procesos.</li>'+
+      '<li><b>Repasar errores:</b> las preguntas que fallaste se guardan para que las repitas hasta acertarlas.</li>'+
+      '<li><b>Simulacro:</b> 20 preguntas de las tres unidades con calificación al final.</li></ul>'+
+    '<h3>Tu avance</h3><ul><li>Se guarda solo en este navegador después de cada respuesta. Puedes cerrar y volver más tarde.</li>'+
+      '<li>Si usas otro dispositivo o modo incógnito, usa el <b>código de respaldo</b> en “Mi avance”.</li>'+
+      '<li>Ganas XP por cada acierto, subes de nivel (de Figurante a Diseñador/a de producción) y desbloqueas insignias.</li></ul>'+
+    '<h3>Atajos de teclado</h3><ul><li><kbd>1</kbd>–<kbd>4</kbd> o <kbd>A</kbd>–<kbd>D</kbd>: elegir respuesta.</li><li><kbd>V</kbd>: voltear ficha · <kbd>←</kbd> <kbd>→</kbd>: ficha anterior o siguiente.</li><li><kbd>Esc</kbd>: cerrar ventanas.</li></ul>'+
+    '<h3>Lectura cómoda</h3><p>En el botón <b>Aa</b> puedes agrandar la letra, cambiar a modo claro u oscuro, activar alto contraste, espaciar el texto y reducir animaciones.</p>'+
+    '<button class="btn primary" data-act="closeHelp" id="btnCloseHelp">Entendido</button></div>';
+  o.hidden = false; document.getElementById("btnCloseHelp").focus();
+}
+function closeHelp(){ const o=document.getElementById("overlay"); o.hidden=true; o.innerHTML=""; if(lastFocus) lastFocus.focus(); }
+
+/* =====================================================================
+   ACCIONES
+   ===================================================================== */
+const ACT = {
+  quick(){ startQuiz(pickQuick(), "Reto rápido"); },
+  skipName(){ S.nameSkip = true; save(); render(); },
+  study(d){ ui.studyTopic = d.t; ui.cardIdx = 0; ui.flipped = false; S.last = d.t; save(); if(view!=="estudiar"){ go("estudiar"); } else { focusAfter="h1"; render(); } },
+  backTopics(){ ui.studyTopic = null; focusAfter="h1"; render(); },
+  flip(){ ui.flipped = !ui.flipped; ui.anim = true; if(ui.flipped){ const t=TMAP[ui.studyTopic]; announce("Respuesta: "+t.cards[ui.cardIdx][1]); focusAfter="#btnKnow"; } else focusAfter="#fcard"; render(); ui.anim=false; },
+  prevCard(){ if(ui.cardIdx>0){ ui.cardIdx--; ui.flipped=false; focusAfter="#fcard"; render(); } },
+  nextCard(){ const n=TMAP[ui.studyTopic].cards.length; if(ui.cardIdx<n-1){ ui.cardIdx++; ui.flipped=false; focusAfter="#fcard"; render(); } },
+  know(){ markCard("k"); },
+  topicQuiz(d){ S.last = d.t; ui.scope = d.t; startQuiz(pickForScope(d.t, 10), TMAP[d.t].n); if(view!=="practicar"){ history.replaceState(null,"","#practicar"); view="practicar"; paintTabs(); } },
+  scope(d){ ui.scope = d.s; focusAfter = '[data-act="scope"][data-s="'+d.s+'"]'; render(); },
+  startQuiz(){ startQuiz(pickForScope(ui.scope, 10), scopeLabel(ui.scope)); },
+  startReview(){ const ids = shuffle(wrongIds()).slice(0,10); if(!ids.length) return; if(view!=="practicar"){ history.replaceState(null,"","#practicar"); view="practicar"; } startQuiz(ids, "Repaso de errores"); },
+  startMatch(){ startMatch(); },
+  startOrder(){ startOrder(); },
+  pick(d){
+    if(run.picked!==null) return;
+    const k = +d.i, q = QMAP[run.ids[run.i]], ok = run.opts[k]===q.ans;
+    run.picked = k; recordAnswer(q.id, ok); run.res.push({ id:q.id, ok, pick:run.opts[k] }); S.last = q.t; save();
+    announce(ok ? "¡Correcto! "+q.e : "Incorrecto. La respuesta correcta es: "+q.ans+". "+q.e);
+    focusAfter = "#btnNext"; render();
+  },
+  next(){
+    if(run.i < run.ids.length-1){ run.i++; run.picked=null; run.opts=shuffle(QMAP[run.ids[run.i]].o); focusAfter="h2"; render(); }
+    else {
+      S.stats.rounds++; if(run.res.length>=5 && run.res.every(r=>r.ok)) S.stats.perfect = (S.stats.perfect||0)+1;
+      checkBadges(); save();
+      run.finished = true; focusAfter = "#btnRes"; render();
+    }
+  },
+  retryMissed(){ const ids = run.res.filter(r=>!r.ok).map(r=>r.id); startQuiz(shuffle(ids), "Repaso de errores"); },
+  again(d,b){ if(run && run.type==="quiz"){ const lbl = run.label; startQuiz(lbl==="Reto rápido" ? pickQuick() : lbl==="Repaso de errores" ? shuffle(wrongIds()).slice(0,10) : pickForScope(ui.scope,10), lbl); } else markCard("a"); },
+  exitRun(){ run = null; focusAfter="h1"; render(); },
+  mL(d){ run.selL = (run.selL===+d.i) ? null : +d.i; run.bad=null; run.msg=""; if(run.selR!==null) tryMatch(); else { focusAfter='[data-act="mL"][data-i="'+d.i+'"]'; render(); } },
+  mR(d){ run.selR = (run.selR===+d.i) ? null : +d.i; run.bad=null; run.msg=""; if(run.selL!==null) tryMatch(); else { focusAfter='[data-act="mR"][data-i="'+d.i+'"]'; render(); } },
+  up(d){ moveStep(+d.i, -1); },
+  down(d){ moveStep(+d.i, 1); },
+  check(){
+    run.checked = true; run.tries++;
+    const all = run.cur.every((v,i)=>v===i);
+    if(all){ run.solved = true; gain(run.tries===1?30:15); if(run.tries===1) S.stats.orders++; S.last = run.set.t; checkBadges(); save(); focusAfter="#btnRes"; announce("¡Orden perfecto!"); }
+    else { const g = run.cur.filter((v,i)=>v===i).length; announce(g+" de "+run.cur.length+" pasos en su lugar."); focusAfter="#btnCheck"; }
+    render();
+  },
+  solve(){ run.cur = run.set.steps.map((_,i)=>i); run.checked=true; run.solved=true; run.shown=true; focusAfter="#btnRes"; render(); },
+  simTimer(){ ui.simTimer = !ui.simTimer; focusAfter='[data-act="simTimer"]'; render(); },
+  simStart(){ if(view!=="simulacro"){ history.replaceState(null,"","#simulacro"); view="simulacro"; } startSim(); },
+  simPick(d){ const id = run.ids[run.i]; run.ans[id] = run.opts[id][+d.i]; focusAfter = run.i<run.ids.length-1 ? "#simNextBtn" : '[data-act="simSubmit"]'; render(); tick(); },
+  simGo(d){ run.i = +d.i; ui.confirmSubmit=false; focusAfter="h2"; render(); tick(); },
+  simPrev(){ if(run.i>0){ run.i--; focusAfter="h2"; render(); tick(); } },
+  simNext(){ if(run.i<run.ids.length-1){ run.i++; focusAfter="h2"; render(); tick(); } },
+  simSubmit(){ ui.confirmSubmit = true; focusAfter="#btnConfirm"; render(); tick(); },
+  simCancel(){ ui.confirmSubmit = false; focusAfter="h2"; render(); tick(); },
+  simConfirm(){ finishSim(); },
+  copyCode(){
+    const ta = document.getElementById("codeOut"), txt = ta.value;
+    const ok = ()=>toast("Código copiado. Guárdalo en un lugar seguro.","check");
+    const fallback = ()=>{ ta.focus(); ta.select(); toast("Selecciona y copia el código manualmente.","alert"); };
+    try{ navigator.clipboard.writeText(txt).then(ok, fallback); }catch(e){ fallback(); }
+  },
+  importCode(){
+    const raw = (document.getElementById("codeIn").value||"").trim();
+    if(!raw){ ui.importMsg = "Primero pega tu código en el cuadro."; render(); return; }
+    try{
+      const d = JSON.parse(decodeURIComponent(escape(atob(raw))));
+      if(!d || typeof d!=="object" || !d.q) throw new Error("x");
+      const base = defState();
+      S = Object.assign(base, d, { settings:Object.assign(base.settings, d.settings||{}), stats:Object.assign(base.stats, d.stats||{}), streak:Object.assign(base.streak, d.streak||{}) });
+      save(); applySettings(); ui.importMsg = "¡Listo! Recuperamos tu avance."; toast("Avance recuperado","check");
+    }catch(e){ ui.importMsg = "Ese código no es válido. Revisa que lo hayas copiado completo."; }
+    render();
+  },
+  reset(){ ui.confirmReset = true; focusAfter="#btnResetYes"; render(); },
+  resetNo(){ ui.confirmReset = false; render(); },
+  resetYes(){ const keep = S.settings; S = defState(); S.settings = keep; ui.confirmReset=false; ui.studyTopic=null; save(); toast("Tu avance se borró. ¡A empezar de nuevo!","redo"); focusAfter="h1"; render(); },
+  fs(d){ S.settings.fs = +d.v; applySettings(); save(); paintReadPanel(); focusIn('[data-act="fs"][data-v="'+d.v+'"]'); },
+  theme(d){ S.settings.theme = d.v; applySettings(); save(); paintReadPanel(); focusIn('[data-act="theme"][data-v="'+d.v+'"]'); },
+  hc(){ S.settings.hc = !S.settings.hc; applySettings(); save(); paintReadPanel(); focusIn('[data-act="hc"]'); },
+  sp(){ S.settings.sp = !S.settings.sp; applySettings(); save(); paintReadPanel(); focusIn('[data-act="sp"]'); },
+  rm(){ S.settings.rm = !S.settings.rm; applySettings(); save(); paintReadPanel(); focusIn('[data-act="rm"]'); },
+  closeRead(){ openRead(false); },
+  closeHelp(){ closeHelp(); }
+};
+function focusIn(sel){ const el=document.querySelector("#readPanel "+sel); if(el) el.focus(); }
+function markCard(v){
+  const t = TMAP[ui.studyTopic]; S.cards[t.id+"-c"+ui.cardIdx] = v;
+  if(v==="k") gain(2);
+  if(!S.days[today()]) sessionStart();
+  S.last = t.id; checkBadges(); save();
+  const n = t.cards.length;
+  if(ui.cardIdx < n-1){ ui.cardIdx++; ui.flipped=false; focusAfter="#fcard"; render(); }
+  else { ui.flipped=false; render(); const k=cardsKnown(t.id); toast(k===n ? "¡Dominas todas las fichas de este tema!" : "Terminaste el mazo: "+k+" de "+n+" dominadas.", k===n?"star":"cards"); ui.cardIdx=0; focusAfter="#fcard"; render(); }
+}
+function moveStep(pos, dir){
+  const to = pos+dir; if(to<0 || to>=run.cur.length) return;
+  [run.cur[pos], run.cur[to]] = [run.cur[to], run.cur[pos]];
+  run.checked = false;
+  focusAfter = '[data-act="'+(dir<0?"up":"down")+'"][data-i="'+to+'"]';
+  render();
+  const el = document.querySelector(focusAfter||"x"); if(!el || el.disabled){ const alt=document.querySelector('[data-act="'+(dir<0?"down":"up")+'"][data-i="'+to+'"]'); if(alt) alt.focus(); }
+  announce("Paso movido a la posición "+(to+1)+".");
+}
+
+/* =====================================================================
+   EVENTOS
+   ===================================================================== */
+document.addEventListener("click", e=>{
+  const b = e.target.closest("[data-act]");
+  if(b && !b.disabled){ const fn = ACT[b.dataset.act]; if(fn){ e.preventDefault(); fn(b.dataset, b); } return; }
+  const rp = document.getElementById("readPanel");
+  if(!rp.hidden && !rp.contains(e.target) && !e.target.closest("#btnRead")) openRead(false);
+  if(e.target.id==="overlay") closeHelp();
+});
+document.getElementById("btnRead").addEventListener("click", ()=>openRead(document.getElementById("readPanel").hidden));
+document.getElementById("btnHelp").addEventListener("click", openHelp);
+document.addEventListener("submit", e=>{
+  if(e.target.id==="nameForm"){ e.preventDefault(); const v=(document.getElementById("nameIn").value||"").trim(); if(v){ S.name=v.slice(0,30); save(); toast("¡Mucho gusto, "+S.name+"!","star"); render(); } else { document.getElementById("nameIn").focus(); } }
+});
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape"){ if(!document.getElementById("overlay").hidden){ closeHelp(); return; } if(!document.getElementById("readPanel").hidden){ openRead(false); return; } }
+  if(e.target.matches("input, textarea") || e.altKey || e.ctrlKey || e.metaKey) return;
+  if(!document.getElementById("overlay").hidden) return;
+  const k = e.key.toLowerCase();
+  if(run && (run.type==="quiz" && !run.finished || run.type==="sim" && !run.done)){
+    const map = { "1":0,"2":1,"3":2,"4":3,"a":0,"b":1,"c":2,"d":3 };
+    if(k in map){ const btn = document.querySelector('[data-act="'+(run.type==="quiz"?"pick":"simPick")+'"][data-i="'+map[k]+'"]'); if(btn && !btn.disabled){ e.preventDefault(); btn.click(); } }
+    return;
+  }
+  if(!run && view==="estudiar" && ui.studyTopic){
+    if(k==="v"){ e.preventDefault(); ACT.flip(); }
+    else if(e.key==="ArrowRight" && !ui.flipped){ e.preventDefault(); ACT.nextCard(); }
+    else if(e.key==="ArrowLeft" && !ui.flipped){ e.preventDefault(); ACT.prevCard(); }
+  }
+});
+window.addEventListener("hashchange", route);
+
+/* arranque */
+applySettings();
+paintSave();
+route();
+</script>
+
+</body>
+</html>
